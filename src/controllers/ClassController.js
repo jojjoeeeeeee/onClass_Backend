@@ -95,7 +95,7 @@ exports.create = async (req,res) => {
 
         const new_data_user = query_user;
         new_data_user.class = user_class;
-        
+
         const data_user = await Users.findByIdAndUpdate(user_id, new_data_user);
         res.status(200).json({result: 'OK', message: 'success created class'});
     } catch (e) {
@@ -171,4 +171,8 @@ exports.nickname = async (req,res) => {
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }
+};
+
+exports.leave = async (req,res) => {
+
 };

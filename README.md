@@ -1,7 +1,8 @@
 # CSC361_Classroom_Backend
-_SWU CSC361 Web Programming Project "Classroom" backend_
+**SWU CSC361 Web Programming Project "Classroom" backend**
 
-**Final project COSCI Computer For Communicaton 2021 Classroom Website (API repository)**
+_Final project COSCI Computer For Communicaton 2021 Classroom Website (API repository)_
 
+**Member :**
 Phakkharachate Jonganurak 62130010349
 Thananut Jariyasatit 62130010346

@@ -1,0 +1,35 @@
+{
+  "name": "csc361_classroom",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jojjoeeeeeee/CSC361_Clasroom_Backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jojjoeeeeeee/CSC361_Clasroom_Backend/issues"
+  },
+  "homepage": "https://github.com/jojjoeeeeeee/CSC361_Clasroom_Backend#readme",
+  "dependencies": {
+    "@hapi/joi": "^17.1.1",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "formidable": "^1.2.2",
+    "fs-extra": "^10.0.0",
+    "generate-password": "^1.6.1",
+    "helmet": "^4.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "moment": "^2.29.1",
+    "mongoose": "^6.0.8",
+    "mongoose-sequence": "^5.3.1"
+  }
+}

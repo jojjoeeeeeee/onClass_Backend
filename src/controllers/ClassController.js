@@ -121,7 +121,7 @@ exports.join = async (req,res) => {
         const new_data = query;
         new_data.student_id = student_id;
 
-        const data = await Classes.findOneAndUpdate({ claass_code: classcode }, new_data);
+        const data = await Classes.findOneAndUpdate({ class_code: classcode }, new_data);
 
         const query_user = await Users.findById(user_id);
         var user_class = query_user.class
@@ -155,18 +155,29 @@ exports.nickname = async (req,res) => {
         if (!query.teacher_id.includes(user_id) && !query.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
 
         var nickname = query.nickname;
+        var alreadyNicknamed = false
         const form = {
             user_id: user_id,
             firstname: req.body.firstname,
             lastname: req.body.lastname,
             optional_name: req.body.optional_name
         }
-        nickname.push(form)
+
+        query.nickname.map((key,index) => {
+            if (key.user_id == user_id) {
+                nickname[index] = form
+                alreadyNicknamed = true
+            }
+        })
+        
+        if (!alreadyNicknamed) {
+            nickname.push(form)
+        }
         
         const new_data = query;
         new_data.nickname = nickname;
 
-        const data = await Classes.findOneAndUpdate({ claass_code: classcode }, new_data);
+        const data = await Classes.findOneAndUpdate({ class_code: classcode }, new_data);
         res.status(200).json({result: 'OK', message: 'success changed class nickname'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
@@ -174,5 +185,39 @@ exports.nickname = async (req,res) => {
 };
 
 exports.leave = async (req,res) => {
+    const user_id = req.userId;
 
+    const classcode  = req.body.class_code;
+    if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
+    
+    try {
+        const query = await Classes.findOne({ class_code: classcode })
+        if (!query) return res.status(404).json({result: 'Not found', message: ''});
+        if (!query.teacher_id.includes(user_id) && !query.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+
+        if (query.teacher_id.includes(user_id)) return res.status(200).json({result: 'OK', message: 'failed you are class teacher'});
+
+        var student_id = query.student_id;
+        const student_id_index = student_id.indexOf(user_id)
+        student_id.splice(student_id_index)
+        
+        const new_data = query;
+        new_data.student_id = student_id;
+
+        const data = await Classes.findOneAndUpdate({ class_code: classcode }, new_data);
+
+
+        const query_user = await Users.findById(user_id);
+        var user_class = query_user.class
+        const user_class_index = user_class.indexOf(classcode)
+        user_class.splice(user_class_index)
+
+        const new_data_user = query_user;
+        new_data_user.class = user_class;
+        
+        const data_user = await Users.findByIdAndUpdate(user_id, new_data_user);
+        res.status(200).json({result: 'OK', message: 'success leaved class'});
+    } catch (e) {
+        res.status(500).json({result: 'Internal Server Error', message: ''});
+    }
 };

@@ -15,7 +15,7 @@ const score_schema = mongoose.Schema({
 
 const schema = mongoose.Schema({
     assignment_id: String,
-    class_code: [String],
+    class_code: String,
     std_result: [result_schema],
     std_score: [score_schema],
     created: { type: Date, default: Date.now }

@@ -6,12 +6,10 @@ const class_schema = mongoose.Schema({
 }, { _id : false});
 
 const notification_schema = mongoose.Schema({
-    noti_id: String,
     class_code: String,
     type: String,
     message: String,
     todo_id: String
-    
 }, { _id : false});
 
 const schema = mongoose.Schema({

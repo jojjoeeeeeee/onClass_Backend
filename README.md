@@ -9,4 +9,4 @@ _Final project COSCI Computer For Communicaton 2021 Classroom Website (API repos
 |Phakkharachate Jonganurak|62130010349|
 |Thananut Jariyasatit|62130010346|
 
-![cosciLogo](https://upload.wikimedia.org/wikipedia/commons/5/51/COSCI.SWU_Logo.png)
+<img src="https://upload.wikimedia.org/wikipedia/commons/5/51/COSCI.SWU_Logo.png" alt="cosciLogo" width="300"/>

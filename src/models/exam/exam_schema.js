@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const objective_schema = mongoose.Schema({
     question: String,

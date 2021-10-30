@@ -1,14 +1,15 @@
 const Users = require('../models/user_schema');
 const Classes = require('../models/class_schema');
+const Exams = require('../models/exam/examination_schema')
 
 const { generateClasscode } = require('../services/classServices');
 const { classValidation, classNicknameValidation } = require('../services/validation');
 
 exports.get = async (req,res) => {
 
-    const user_id = req.userId
+    const user_id = req.userId;
 
-    const classcode = req.body.class_code;
+    const classcode = req.params.class_code;
     if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
@@ -42,6 +43,19 @@ exports.get = async (req,res) => {
             }
             student_data.push(details);
         }
+
+        const exam_data = []
+        for(let i = 0 ; i < data.class_exam_id.length ; i++) {
+            const query = await Exams.findById(data.class_exam_id[i]);
+            const details = {
+                id: query._id,
+                name: query.exam_name,
+                description: query.exam_description,
+                start_date: query.exam_start_date,
+                end_date: query.exam_end_date
+            }
+            exam_data.push(details);
+        }
         
 
         const res_data = {
@@ -56,7 +70,7 @@ exports.get = async (req,res) => {
             student: student_data,
             class_assignment_id: data.class_assignment_id,
             class_post_id: data.class_post_id,
-            class_exam_id: data.class_exam_id,
+            class_exam: exam_data,
             nickname: data.nickname
         }
 

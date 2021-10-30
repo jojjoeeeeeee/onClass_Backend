@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const result_schema = mongoose.Schema({
     student_id: String,

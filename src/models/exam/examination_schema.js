@@ -1,15 +1,15 @@
-const mongoose = require("mongoose");
-const File = require("../file_schema");
+const mongoose = require('mongoose');
+const File = require('../file_schema');
 
 const part_schema = mongoose.Schema({
     part_id: String,
-    type: String,
+    type: String, //part type objective || subjective
     part_name: String,
     part_description: String,
     start_date: Date,
     end_date: Date,
     score: Number,
-    item: [mongoose.Schema]
+    item: [mongoose.SchemaTypes.Mixed] //Objective and Subjective Array
 }, { _id : false });
 
 const schema = mongoose.Schema({

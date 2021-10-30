@@ -38,6 +38,18 @@
     }
 }
 
+{   
+    "class_code": "oana5uZDKz",
+    "examId": "617dc0b5ea6cfa4453d981c5",
+    "data": [
+        {
+            "part_id":"1",
+            "part_type":"objective",
+            "answer": ["0","1"]
+        }
+    ]
+}
+
 -> TEACHER
 Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNTRlZTM2NzA2YTMzZWVmNDM0ODhjYiIsImlhdCI6MTYzNTU1MTYwNCwiZXhwIjoxNjM1NjM4MDA0LCJhdWQiOiJodHRwOi8vMTI3LjAuMC4xOjgwODAiLCJpc3MiOiJDb3NjaSIsInN1YiI6InBoYWtraGFyYWNoYXRlLmpvbkBnbWFpbC5jb20ifQ.Xw9zq2OIASLvVXFK3-INvZyBs6wdVYwjAH_jS2jvEAPgpZVu_RdjxcG8sagQ6rbWHJtAArJzyVKGy9XOxscAYqVQT1NNVyIca3KTxCr-BQvBFNI3s_xUkrn8mUnx9woUBvR92WVRnunmHONrb8uOqxCfaE3w0gJfDnjfUElCgm0
 -> STUDENT

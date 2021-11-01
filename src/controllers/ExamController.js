@@ -65,9 +65,75 @@ exports.details = async (req,res) => {
                 }
                 res_part.push(details)
             });
-            exam_data.part_list = res_part;
 
-            res.status(200).json({result: 'OK', message: '', data: exam_data});
+            if (exam_data.optional_setting.random_question) {
+                res_part.map((key) => {
+                    var currentIndex = key.item.length, temporaryValue, randomIndex;
+
+                    const defaultArr = key.item.map(i => {
+                        return i
+                    })
+                
+                    while (0 !== currentIndex) {
+                        randomIndex = Math.floor(Math.random() * currentIndex);
+                        currentIndex -= 1;
+                        temporaryValue = key.item[currentIndex];
+                        key.item[currentIndex] = key.item[randomIndex];
+                        key.item[randomIndex] = temporaryValue;
+                    }
+
+                    const indexArr = defaultArr.map(obj => {
+                        return key.item.indexOf(obj)
+                    })
+
+                    key.question_default_index = indexArr
+                    
+                    return key
+                });
+            }
+
+            if (exam_data.optional_setting.random_choice) {
+                res_part.map((key) => {
+                    key.item.map((k) => {
+                        var currentIndex = k.choice.length, temporaryValue, randomIndex;
+
+                        const defaultArr = k.choice.map(i => {
+                            return i
+                        })
+                    
+                        while (0 !== currentIndex) {
+                            randomIndex = Math.floor(Math.random() * currentIndex);
+                            currentIndex -= 1;
+                            temporaryValue = k.choice[currentIndex];
+                            k.choice[currentIndex] = k.choice[randomIndex];
+                            k.choice[randomIndex] = temporaryValue;
+                        }
+    
+                        const indexArr = defaultArr.map(obj => {
+                            return k.choice.indexOf(obj)
+                        })
+    
+                        k.choice_default_index = indexArr
+                        return k
+                    });
+                    
+                    return key
+                });
+            }
+
+            const res_exam_data = {
+                _id:exam_data._id,
+                optional_setting: exam_data.optional_setting,
+                exam_name: exam_data.exam_name,
+                exam_description: exam_data.exam_description,
+                author: exam_data.author,
+                part_list: res_part,
+                exam_optional_file: exam_data.exam_optional_file,
+                exam_start_date: exam_data.exam_start_date,
+                exam_end_date: exam_data.exam_end_date
+            }
+
+            res.status(200).json({result: 'OK', message: '', data: res_exam_data});
         }
         else {
             res.status(200).json({result: 'OK', message: '', data: exam_data});

@@ -18,7 +18,7 @@
                         "type": "one",
                         "image": "",
                         "choice": ["True","False1","False2","False3"],
-                        "Answer": ["0"],
+                        "answer": ["0"],
                         "score": "5"
                     },
                     {
@@ -26,7 +26,7 @@
                         "type": "one",
                         "image": "",
                         "choice": ["eiei","Jojoe","kiki","mumi"],
-                        "Answer": ["1"],
+                        "answer": ["1"],
                         "score": "5"
                     }
                 ]
@@ -40,17 +40,17 @@
 
 {   
     "class_code": "oana5uZDKz",
-    "examId": "617dc0b5ea6cfa4453d981c5",
+    "examId": "617fd368b2ce0b22291f26b9",
     "data": [
         {
             "part_id":"1",
             "part_type":"objective",
-            "answer": ["0","1"]
+            "answer": [["0"],["1"]]
         }
     ]
 }
 
 -> TEACHER
-Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNTRlZTM2NzA2YTMzZWVmNDM0ODhjYiIsImlhdCI6MTYzNTU1MTYwNCwiZXhwIjoxNjM1NjM4MDA0LCJhdWQiOiJodHRwOi8vMTI3LjAuMC4xOjgwODAiLCJpc3MiOiJDb3NjaSIsInN1YiI6InBoYWtraGFyYWNoYXRlLmpvbkBnbWFpbC5jb20ifQ.Xw9zq2OIASLvVXFK3-INvZyBs6wdVYwjAH_jS2jvEAPgpZVu_RdjxcG8sagQ6rbWHJtAArJzyVKGy9XOxscAYqVQT1NNVyIca3KTxCr-BQvBFNI3s_xUkrn8mUnx9woUBvR92WVRnunmHONrb8uOqxCfaE3w0gJfDnjfUElCgm0
+Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNTRlZTM2NzA2YTMzZWVmNDM0ODhjYiIsImlhdCI6MTYzNTcyMDY0OSwiZXhwIjoxNjM1ODA3MDQ5LCJhdWQiOiJodHRwOi8vMTI3LjAuMC4xOjgwODAiLCJpc3MiOiJDb3NjaSIsInN1YiI6InBoYWtraGFyYWNoYXRlLmpvbkBnbWFpbC5jb20ifQ.PLb6li6pulNeicJgIwcEDxycivyzy_4oboDHIHBvYs6R5hMq--maU51H1Qi7zxxWXlJNm7fYbmI5uhzb3gkZrSsvVJsox5TlkHZ5C2L_VnCALs209Urzksjwz0ez6-ytDFUJwo1rO6AjCmqmfIUxWKJX4qiR9myHe89wIc97kbg
 -> STUDENT
-Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNTYxNWVkYzUwZGZkZGFlODZiZDUzOCIsImlhdCI6MTYzNTU1NjM1NiwiZXhwIjoxNjM1NjQyNzU2LCJhdWQiOiJodHRwOi8vMTI3LjAuMC4xOjgwODAiLCJpc3MiOiJDb3NjaSIsInN1YiI6InBoYWtraGFyYWNoYXRlLmpvbkBnbWFpbC5jb20ifQ.PfgYQZ2Qpsur76I46EdSpFkC6SKa5aiJo1NJQUDRmYcB1noAp8hHGwjSJEF0B5EhYhUeSxziplQ6kr4eS1KRZKQjOu2mxMD0tepByodKGYkOB9kNlHK1drLiqDwpqSyIR6Crr4Xd7k_iICVehaFlR9IeC8HfQK-9iDF96Sg8hUo
+Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNTYxNWVkYzUwZGZkZGFlODZiZDUzOCIsImlhdCI6MTYzNTcyMDU0MSwiZXhwIjoxNjM1ODA2OTQxLCJhdWQiOiJodHRwOi8vMTI3LjAuMC4xOjgwODAiLCJpc3MiOiJDb3NjaSIsInN1YiI6InBoYWtraGFyYWNoYXRlLmpvbkBnbWFpbC5jb20ifQ.Nf2d9EJRP-i82o3bt_7neVc2g-7OPyv8FrwPbnLL-1laDeA7bdvre59fZBgaasz0XC5O6zDSTsHKT7Pzl8Zbc8ZjbCwMhDC9lCJTnIZY3sIrgeJ3U6-wAzIsbX1UQLOPuAX5-5k8M6I5lrQVvXMAGOgC7_D2oPdYJLjU6H-5cpE

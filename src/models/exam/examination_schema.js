@@ -14,7 +14,13 @@ const part_schema = mongoose.Schema({
 
 const schema = mongoose.Schema({
     exam_name: String,
-    exam_description: String,
+    exam_description: {type: String, default: ''},
+    author: String,
+    optional_setting: {
+        random_question: {type: Boolean, default: false},
+        random_choice: {type: Boolean, default: false},
+        std_getResult: {type: Boolean, default: false},
+    },
     part_list: [part_schema],
     exam_optional_file: [File],
     exam_start_date: Date,

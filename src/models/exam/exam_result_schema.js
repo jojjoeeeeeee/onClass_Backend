@@ -3,12 +3,14 @@ const mongoose = require('mongoose');
 const result_schema = mongoose.Schema({
     student_id: String,
     part_id: String,
-    part_type: String,
-    answer: [String]
+    part_type: String, //objective subjective
+    answer: [[String]]
 }, { _id : false });
 
 const score_schema = mongoose.Schema({
     student_id: String,
+    part_id: String,
+    part_type: String,
     part_score: [Number],
     sum_score: Number
 }, { _id : false });

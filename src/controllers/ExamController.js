@@ -11,7 +11,7 @@ exports.details = async (req,res) => {
 
     const user_id = req.userId;
     const classcode = req.body.class_code;
-    const exam_id = req.body.examId;
+    const exam_id = req.body.exam_id;
 
     if (!classcode||!exam_id) return res.status(400).json({result: 'Bad request', message: ''});
 
@@ -122,7 +122,7 @@ exports.details = async (req,res) => {
             }
 
             const res_exam_data = {
-                _id:exam_data._id,
+                id:exam_data._id,
                 optional_setting: exam_data.optional_setting,
                 exam_name: exam_data.exam_name,
                 exam_description: exam_data.exam_description,
@@ -147,7 +147,7 @@ exports.details = async (req,res) => {
 exports.stdSubmit = async (req,res) => {
     const user_id = req.userId;
     const classcode = req.body.class_code;
-    const exam_id = req.body.examId;
+    const exam_id = req.body.exam_id;
     const submitResult = req.body.data;
 
     //submit result validation
@@ -173,7 +173,7 @@ exports.stdSubmit = async (req,res) => {
         const now = moment()
         const start = moment(exam_data.exam_start_date);
         const end = moment(exam_data.exam_end_date);
-        // if (now.isBefore(start) || now.isAfter(end)) return res.status(403).json({result: 'Forbiden', message: 'Its not the time when you can take the exam'});
+        if (now.isBefore(start) || now.isAfter(end)) return res.status(403).json({result: 'Forbiden', message: 'Its not the time when you can take the exam'});
         
         //Already submit validate
         const examResultData = await ExamResults.findOne({ exam_id : exam_id});
@@ -207,7 +207,7 @@ exports.stdSubmit = async (req,res) => {
 exports.getResultForTeacher = async (req,res) => {
     const user_id = req.userId;
     const classcode = req.body.class_code;
-    const exam_id = req.body.examId;
+    const exam_id = req.body.exam_id;
 
     if (!classcode||!exam_id) return res.status(400).json({result: 'Bad request', message: ''});
 
@@ -276,7 +276,56 @@ exports.getResultForTeacher = async (req,res) => {
         Promise.all(mapPromises).then( async () => {
             await ExamResults.findOneAndUpdate({ exam_id: exam_id}, stdScoreData); 
             const new_exam_result_data = await ExamResults.findOne({ exam_id : exam_id });
-            res.status(200).json({result: 'OK', message: '', data: new_exam_result_data});
+
+            const std_result = {
+                name: {},
+                part_id: "",
+                part_type: "",
+                answer: []
+            }
+            const std_result_res_arr = []
+            new_exam_result_data.student_result.map(key => {
+                class_data.nickname.map(nickKey => {
+                    if (nickKey.user_id == key.student_id) {
+                        std_result.name = nickKey;
+                    }
+                })
+                std_result.part_id = key.part_id;
+                std_result.part_type = key.part_type;
+                std_result.answer = key.answer;
+                std_result_res_arr.push(std_result);
+            });
+
+            const std_score = {
+                name: {},
+                part_id: "",
+                part_type: "",
+                part_score: [],
+                sum_score: 0
+            }
+            const std_score_res_arr = []
+            new_exam_result_data.student_score.map(key => {
+                class_data.nickname.map(nickKey => {
+                    console.log(nickKey);
+                    if (nickKey.user_id == key.student_id) {
+                        std_score.name = nickKey;
+                    }
+                });
+                std_score.part_id = key.part_id;
+                std_score.part_type = key.part_type;
+                std_score.part_score = key.part_score;
+                std_score.sum_score = key.sum_score;
+                std_score_res_arr.push(std_score);
+            });
+
+            const resObj = {
+                id: new_exam_result_data._id,
+                exam_id: new_exam_result_data.exam_id,
+                class_code: new_exam_result_data.class_code,
+                student_result: std_result_res_arr,
+                student_score: std_score_res_arr
+            }
+            res.status(200).json({result: 'OK', message: '', data: resObj});
         }) 
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

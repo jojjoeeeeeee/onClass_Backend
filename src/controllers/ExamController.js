@@ -136,7 +136,18 @@ exports.details = async (req,res) => {
             res.status(200).json({result: 'OK', message: '', data: res_exam_data});
         }
         else {
-            res.status(200).json({result: 'OK', message: '', data: exam_data});
+            const res_exam_data = {
+                id:exam_data._id,
+                optional_setting: exam_data.optional_setting,
+                exam_name: exam_data.exam_name,
+                exam_description: exam_data.exam_description,
+                author: exam_data.author,
+                part_list: exam_data.part_list,
+                exam_optional_file: exam_data.exam_optional_file,
+                exam_start_date: exam_data.exam_start_date,
+                exam_end_date: exam_data.exam_end_date
+            }
+            res.status(200).json({result: 'OK', message: '', data: res_exam_data});
         }
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
@@ -349,12 +360,12 @@ exports.create = async (req,res) => {
 
         exam.author = user_id;
         const data = await Exams.create(exam);
-        const examId = data._id
+        const exam_id = data._id
         class_data.class_exam_id.push(examId);
         const new_class_data = await Classes.findOneAndUpdate({ class_code: classcode }, class_data);        
         
         const resultSchema = {
-            exam_id: examId,
+            exam_id: exam_id,
             class_code: classcode,
             student_result: [],
             student_score: [],
@@ -367,6 +378,112 @@ exports.create = async (req,res) => {
     }
 };
 
-exports.delete = async (req,res) => {
+exports.edit = async (req,res) => {
+    const user_id = req.userId;
+    const classcode = req.body.class_code;
 
+    //exam validation
+    const exam = req.body.data;
+    if (!classcode||!exam) return res.status(400).json({result: 'Bad request', message: ''});
+    if (!exam.id||!exam.exam_name||!exam.part_list||!exam.exam_start_date||!exam.exam_end_date||!exam.optional_setting) return res.status(400).json({result: 'Bad request', message: ''})
+    
+    const exam_id = exam.id
+
+    try {
+        const exam_data = await Exams.findById(exam_id);
+        if (!exam_data) return res.status(404).json({result: 'Not found', message: ''});
+        if (exam_data.author != exam.author) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+
+        const class_data = await Classes.findOne({ class_code: classcode });
+        if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
+        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+ 
+        if ( typeof exam.optional_setting.random_question != 'boolean' || typeof exam.optional_setting.random_choice != 'boolean' || typeof exam.optional_setting.std_getResult != 'boolean') return res.status(400).json({result: 'Bad request', message: ''})
+
+        const class_exam_result = await ExamResults.findOne({ exam_id: exam_id, class_code: classcode });
+        if (class_exam_result.student_result.length == 0 && class_exam_result.student_score.length == 0) {
+            //edit all settings
+            await Exams.findByIdAndUpdate(exam_id, exam);
+            res.status(200).json({result: 'OK', message: 'success edited exam'});
+        }
+        else {
+            //edit only part information like choice,answer if want to add a new part should delete all result before edit
+            const exam_data_part = exam_data.part_list.map( key => {
+                return key.part_id+key.type+key.item.length
+            });
+           
+            const exam_part = exam.part_list.map( key => {
+                return key.part_id+key.type+key.item.length
+            });
+
+            for (let i = 0 ; i < exam_data_part.length ; i++){
+                if (exam_data_part[i] != exam_part[i]) return res.status(400).json({result: 'Bad request', message: ''});
+            }
+            await Exams.findByIdAndUpdate(exam_id, exam);
+            res.status(200).json({result: 'OK', message: 'success edited exam'});
+        }
+        
+    } catch (e) {
+        res.status(500).json({result: 'Internal Server Error', message: ''});
+    }
+};
+
+exports.delete = async (req,res) => {
+    //delete all exam model
+    const user_id = req.userId;
+    const exam_id = req.body.exam_id;
+
+    if (!exam_id) return res.status(400).json({result: 'Bad request', message: ''});
+
+    try {
+        const exam_data = await Exams.findById(exam_id);
+        if (!exam_data) return res.status(404).json({result: 'Not found', message: ''});
+        if (exam_data.author != user_id) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+
+        const class_data = await Classes.find({ class_exam_id: exam_id });
+        if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
+        class_data.map( async data => {
+            const class_exam_id = data.class_exam_id
+            const class_exam_id_index = class_exam_id.indexOf(exam_id)
+            class_exam_id.splice(class_exam_id_index)
+            await Classes.findOneAndUpdate({class_code: data.class_code}, data);
+        });
+
+        const new_exam_data = await Exams.findByIdAndDelete(exam_id);
+        const new_exam_result_data = await ExamResults.deleteMany({exam_id: exam_id});
+        
+
+        res.status(200).json({result: 'OK', message: 'success deleted exam'});
+        
+    } catch (e) {
+        res.status(500).json({result: 'Internal Server Error', message: ''});
+    }
+};
+
+exports.deleteResult = async (req,res) => {
+    const user_id = req.userId;
+    const classcode = req.body.class_code;
+    const exam_id = req.body.exam_id;
+
+    if (!exam_id) return res.status(400).json({result: 'Bad request', message: ''});
+
+    try {
+        const exam_data = await Exams.findById(exam_id);
+        if (!exam_data) return res.status(404).json({result: 'Not found', message: ''});
+
+        const class_data = await Classes.findOne({ class_code: classcode });
+        if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
+        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+
+        const class_exam_result = await ExamResults.findOne({ exam_id: exam_id, class_code: classcode });
+        class_exam_result.student_result = []
+        class_exam_result.student_score = []
+
+        const new_class_exam_result = await ExamResults.findOneAndUpdate({ exam_id : exam_id, class_code: classcode},class_exam_result);
+
+        res.status(200).json({result: 'OK', message: 'success deleted exam result'});
+        
+    } catch (e) {
+        res.status(500).json({result: 'Internal Server Error', message: ''});
+    }
 };

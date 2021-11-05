@@ -12,6 +12,9 @@ const registerValidation = (data) => {
                 .min(6)
                 .max(32)
                 .required(),
+        opitonal_contact: Joi.string()
+                .allow('')
+                .required(),
         name: {
             firstname: Joi.string()
                     .max(128)

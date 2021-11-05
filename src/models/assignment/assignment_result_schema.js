@@ -5,6 +5,7 @@ const result_schema = mongoose.Schema({
     student_id: String,
     file_result: [File],
     answer_result: String,
+    isLate: Boolean
 }, { _id : false });
 
 const score_schema = mongoose.Schema({

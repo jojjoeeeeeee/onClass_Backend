@@ -25,6 +25,7 @@ exports.get = async (req,res) => {
                 username: query.username,
                 email: query.email,
                 name: query.name,
+                optional_contact: query.optional_contact,
                 profile_pic: query.profile_pic
             }
             teacher_data.push(details);
@@ -39,6 +40,7 @@ exports.get = async (req,res) => {
                 username: query.username,
                 email: query.email,
                 name: query.name,
+                optional_contact: query.optional_contact,
                 profile_pic: query.profile_pic
             }
             student_data.push(details);
@@ -211,14 +213,11 @@ exports.leave = async (req,res) => {
 
         if (query.teacher_id.includes(user_id)) return res.status(200).json({result: 'OK', message: 'failed you are class teacher'});
 
-        var student_id = query.student_id;
+        const student_id = query.student_id;
         const student_id_index = student_id.indexOf(user_id)
         student_id.splice(student_id_index)
-        
-        const new_data = query;
-        new_data.student_id = student_id;
 
-        const data = await Classes.findOneAndUpdate({ class_code: classcode }, new_data);
+        const data = await Classes.findOneAndUpdate({ class_code: classcode }, query);
 
 
         const query_user = await Users.findById(user_id);

@@ -317,7 +317,6 @@ exports.getResultForTeacher = async (req,res) => {
             const std_score_res_arr = []
             new_exam_result_data.student_score.map(key => {
                 class_data.nickname.map(nickKey => {
-                    console.log(nickKey);
                     if (nickKey.user_id == key.student_id) {
                         std_score.name = nickKey;
                     }
@@ -361,7 +360,7 @@ exports.create = async (req,res) => {
         exam.author = user_id;
         const data = await Exams.create(exam);
         const exam_id = data._id
-        class_data.class_exam_id.push(examId);
+        class_data.class_exam_id.push(exam_id);
         const new_class_data = await Classes.findOneAndUpdate({ class_code: classcode }, class_data);        
         
         const resultSchema = {
@@ -397,6 +396,12 @@ exports.edit = async (req,res) => {
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        
+         //Validate time
+         const now = moment()
+         const start = moment(exam_data.exam_start_date);
+         const end = moment(exam_data.exam_end_date);
+         if (now.isBefore(end) && now.isAfter(start)) return res.status(403).json({result: 'Forbiden', message: 'Its not the time when you can take the exam'});
  
         if ( typeof exam.optional_setting.random_question != 'boolean' || typeof exam.optional_setting.random_choice != 'boolean' || typeof exam.optional_setting.std_getResult != 'boolean') return res.status(400).json({result: 'Bad request', message: ''})
 

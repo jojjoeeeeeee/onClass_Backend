@@ -2,7 +2,7 @@ const Users = require('../models/user_schema');
 const Classes = require('../models/class_schema');
 const Exams = require('../models/exam/examination_schema')
 
-const { generateClasscode } = require('../services/classServices');
+const { generateClasscode } = require('../services/function');
 const { classValidation, classNicknameValidation } = require('../services/validation');
 
 exports.get = async (req,res) => {
@@ -88,10 +88,10 @@ exports.create = async (req,res) => {
     const { error } = classValidation(req.body);
     if (error) return res.status(400).json({result: 'Bad request', message: error.details[0].message});
 
-    var classcode = generateClasscode;
+    var classcode = generateClasscode();
     var classcodeExist = await Classes.findOne({ class_code : classcode });
     while (classcodeExist) {
-        classcode = generateClasscode;
+        classcode = generateClasscode();
         classcodeExist = await Classes.findOne({ class_code : classcode });
     }
     

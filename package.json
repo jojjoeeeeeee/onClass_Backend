@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jojjoeeeeeee/CSC361_Clasroom_Backend.git"
+    "url": "git+https://github.com/jojjoeeeeeee/CSC361_Classroom_Backend.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jojjoeeeeeee/CSC361_Clasroom_Backend/issues"
+    "url": "https://github.com/jojjoeeeeeee/CSC361_Classroom_Backend/issues"
   },
-  "homepage": "https://github.com/jojjoeeeeeee/CSC361_Clasroom_Backend#readme",
+  "homepage": "https://github.com/jojjoeeeeeee/CSC361_Classroom_Backend#readme",
   "dependencies": {
     "@hapi/joi": "^17.1.1",
     "bcryptjs": "^2.4.3",

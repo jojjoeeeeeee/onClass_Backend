@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
-const File = require('../models/file_schema');
+const File = require('../models/file_model');
+const Comment = require('../models/comment_model');
 
-const comment_schema = mongoose.Schema({
-    comment_author_id: String,
-    content: String,
-    created: { type: Date, default: Date.now }
-}, { _id : false });
+// const comment_schema = mongoose.Schema({
+//     comment_author_id: String,
+//     content: String,
+//     created: { type: Date, default: Date.now }
+// }, { _id : false });
 
 const poll_schema = mongoose.Schema({
     choice_name: String,
@@ -19,8 +20,8 @@ const schema = mongoose.Schema({
     post_content: String,
     post_optional_file: [File],
     poll: [poll_schema],
-    comment: [comment_schema],
+    comment: [Comment],
     created: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('post', schema)
+module.exports = mongoose.model('posts', schema)

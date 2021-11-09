@@ -13,4 +13,6 @@ router.patch('/join', jwt.verify, ClassController.join);
 router.patch('/leave', jwt.verify, ClassController.leave);
 router.patch('/nickname', jwt.verify, ClassController.nickname);
 
+router.use('/post', require('./post'));
+
 module.exports = router;

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const File = require('../file_schema');
+const File = require('../file_model');
 
 const part_schema = mongoose.Schema({
     part_id: String,

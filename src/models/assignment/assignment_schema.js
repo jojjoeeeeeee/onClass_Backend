@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const File = require('../file_schema');
+const File = require('../file_model');
 
 const comment_schema = mongoose.Schema({
     comment_author_id: String,

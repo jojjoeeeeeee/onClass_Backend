@@ -47,7 +47,6 @@ exports.getAll = async (req,res) => {
 };
 
 exports.get = async (req,res) => {
-
     const user_id = req.userId;
 
     const classcode = req.params.class_code;

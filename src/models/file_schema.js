@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 //Upload file -> create schema -> add file schema to schema that needed (optional_file, file_result)
 
-const file_schema = mongoose.Schema({
+const schema = mongoose.Schema({
     file_name: String,
     filename_extension: String,
     file_path: String,
@@ -11,4 +11,4 @@ const file_schema = mongoose.Schema({
 });
 
 
-module.exports = file_schema;
+module.exports = mongoose.model('files', schema)

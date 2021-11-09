@@ -120,6 +120,35 @@ exports.create = async (req,res) => {
 
 };
 
+exports.editDetails = async (req,res) => {
+    const user_id = req.userId;
+    const classcode = req.body.class_code;
+    if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
+
+    const { error } = classValidation(req.body.data);
+    if (error) return res.status(400).json({result: 'Bad request', message: error.details[0].message});
+
+    const data = req.body.data;
+
+    try {
+        const query = await Classes.findOne({ class_code: classcode })
+        if (!query) return res.status(404).json({result: 'Not found', message: ''});
+        if (!query.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+
+        query.class_name = data.class_name;
+        query.class_description = data.class_description;
+        query.class_section = data.class_section;
+        query.class_room = data.class_room;
+        query.class_subject = data.class_subject;
+        query.class_thumbnail = data.class_thumbnail;
+
+        const updated_class_data = await Classes.findOneAndUpdate({ class_code : classcode }, query);
+        res.status(200).json({result: 'OK', message: 'success edited class details'});
+    } catch (e) {
+        res.status(500).json({result: 'Internal Server Error', message: ''});
+    }
+};
+
 exports.join = async (req,res) => {
     const user_id = req.userId;
 

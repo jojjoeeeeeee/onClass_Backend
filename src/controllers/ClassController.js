@@ -92,10 +92,11 @@ exports.get = async (req,res) => {
         const post_data = []
         for(let i = 0 ; i < data.class_post_id.length ; i++) {
             const query = await Posts.findById(data.class_post_id[i]);
+            const user_query = await Users.findById(query.post_author_id);
             const details = {
                 id: query._id,
                 post_author: {},
-                profile_pic: "",
+                profile_pic: user_query.profile_pic,
                 type: query.type,
                 post_content: query.post_content,
                 post_optional_file: query.post_optional_file,
@@ -103,6 +104,12 @@ exports.get = async (req,res) => {
                 comment: query.comment.length,
                 created: query.created
             }
+
+            data.nickname.map(nickKey => {
+                if (nickKey.user_id == query.post_author_id) {
+                    details.post_author = nickKey;
+                }
+            })
             post_data.push(details);
         }
 
@@ -173,7 +180,7 @@ exports.create = async (req,res) => {
         new_data_user.class = user_class;
 
         const data_user = await Users.findByIdAndUpdate(user_id, new_data_user);
-        res.status(200).json({result: 'OK', message: 'success created class'});
+        res.status(200).json({result: 'OK', message: 'success create class'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }
@@ -203,7 +210,7 @@ exports.editDetails = async (req,res) => {
         query.class_thumbnail = data.class_thumbnail;
 
         const updated_class_data = await Classes.findOneAndUpdate({ class_code : classcode }, query);
-        res.status(200).json({result: 'OK', message: 'success edited class details'});
+        res.status(200).json({result: 'OK', message: 'success edit class details'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }
@@ -260,7 +267,7 @@ exports.editRoles = async (req,res) => {
             return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
         }
 
-        res.status(200).json({result: 'OK', message: 'success edited class details'});
+        res.status(200).json({result: 'OK', message: 'success edit class details'});
         
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
@@ -297,7 +304,7 @@ exports.join = async (req,res) => {
         new_data_user.class = user_class;
         
         const data_user = await Users.findByIdAndUpdate(user_id, new_data_user);
-        res.status(200).json({result: 'OK', message: 'success joined class'});
+        res.status(200).json({result: 'OK', message: 'success join class'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }
@@ -340,7 +347,7 @@ exports.nickname = async (req,res) => {
         new_data.nickname = nickname;
 
         const data = await Classes.findOneAndUpdate({ class_code: classcode }, new_data);
-        res.status(200).json({result: 'OK', message: 'success changed class nickname'});
+        res.status(200).json({result: 'OK', message: 'success change class nickname'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }
@@ -375,7 +382,7 @@ exports.leave = async (req,res) => {
         new_data_user.class = user_class;
         
         const data_user = await Users.findByIdAndUpdate(user_id, new_data_user);
-        res.status(200).json({result: 'OK', message: 'success leaved class'});
+        res.status(200).json({result: 'OK', message: 'success leave class'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }

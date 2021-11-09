@@ -17,7 +17,7 @@ exports.register = async (req,res) => {
     try {
         req.body.password = await bcrypt.hash(req.body.password, 8);
         const data = await Users.create(req.body);
-        res.status(200).json({result: 'OK', message: 'success created account'});
+        res.status(200).json({result: 'OK', message: 'success create account'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }
@@ -50,7 +50,7 @@ exports.login = async (req,res) => {
                 }
                 const token = jwt.sign(payload, '24h');
       
-                res.status(200).header('Authorization', `Bearer ${token}`).json({ result: 'OK', message: 'success signed in', data: userSchema });
+                res.status(200).header('Authorization', `Bearer ${token}`).json({ result: 'OK', message: 'success sign in', data: userSchema });
             } else {
                 res.status(400).json({ result: 'Bad request', message: 'invalid username or password' });
             }

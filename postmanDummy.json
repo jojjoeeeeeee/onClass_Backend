@@ -149,6 +149,38 @@
     ]
 }
 
+//Post get
+{   
+    "class_code": "oana5uZDKz",
+    "post_id": "618af5b7ab57644ec75a0a74"
+}
+
+//Post publish
+{   
+    "class_code": "oana5uZDKz",
+    "data": {
+        "type": "normal",
+        "post_content": "First post",
+        "post_optional_file": []
+    }
+}
+
+//Post add comment
+{   
+    "class_code": "oana5uZDKz",
+    "post_id": "618af5b7ab57644ec75a0a74",
+    "data": {
+        "content": "first comment by teacher"
+    }
+}
+
+//Post delete comment
+{   
+    "class_code": "oana5uZDKz",
+    "post_id": "618af5b7ab57644ec75a0a74",
+    "comment_index": "2"
+}
+
 -> TEACHER
 Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNTRlZTM2NzA2YTMzZWVmNDM0ODhjYiIsImlhdCI6MTYzNjQxNDM2MSwiZXhwIjoxNjM2NTAwNzYxLCJhdWQiOiJodHRwOi8vMTI3LjAuMC4xOjgwODAiLCJpc3MiOiJDb3NjaSIsInN1YiI6InBoYWtraGFyYWNoYXRlLmpvbkBnbWFpbC5jb20ifQ.iZF9we5InIuJJw1IwF1xxCmvXErpoAo-oLt9IPFW0le4P2kAdotdaO9WVASab9JsMJU54NBORkKkQRnb3DEjOXqJQLjzHfnouT3NGrNwsxZkfDzxtB28PzccDelJGUuzuwu_d5oDYJVD0wh6nlDY529hxf7p1mfS_7fx-1VU9qg
 

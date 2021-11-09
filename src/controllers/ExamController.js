@@ -264,7 +264,7 @@ exports.scoreSubjective = async (req,res) => {
         
 
         await ExamResults.findOneAndUpdate({ exam_id: exam_id}, exam_result_data); 
-        res.status(200).json({result: 'OK', message: 'success added student subjective score'});
+        res.status(200).json({result: 'OK', message: 'success add student subjective score'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }
@@ -469,7 +469,7 @@ exports.edit = async (req,res) => {
         if (class_exam_result.student_result.length == 0 && class_exam_result.student_score.length == 0) {
             //edit all settings
             await Exams.findByIdAndUpdate(exam_id, exam);
-            res.status(200).json({result: 'OK', message: 'success edited exam'});
+            res.status(200).json({result: 'OK', message: 'success edit exam'});
         }
         else {
             //edit only part information like choice,answer if want to add a new part should delete all result before edit
@@ -488,7 +488,7 @@ exports.edit = async (req,res) => {
                 if (exam_data_part[i] != exam_part[i]) return res.status(400).json({result: 'Bad request', message: ''});
             }
             await Exams.findByIdAndUpdate(exam_id, exam);
-            res.status(200).json({result: 'OK', message: 'success edited exam'});
+            res.status(200).json({result: 'OK', message: 'success edit exam'});
         }
         
     } catch (e) {
@@ -521,7 +521,7 @@ exports.delete = async (req,res) => {
         const new_exam_result_data = await ExamResults.deleteMany({exam_id: exam_id});
         
 
-        res.status(200).json({result: 'OK', message: 'success deleted exam'});
+        res.status(200).json({result: 'OK', message: 'success delete exam'});
         
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
@@ -549,7 +549,7 @@ exports.deleteResult = async (req,res) => {
 
         const new_class_exam_result = await ExamResults.findOneAndUpdate({ exam_id : exam_id, class_code: classcode},class_exam_result);
 
-        res.status(200).json({result: 'OK', message: 'success deleted exam result'});
+        res.status(200).json({result: 'OK', message: 'success delete exam result'});
         
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

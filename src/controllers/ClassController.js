@@ -22,6 +22,7 @@ exports.get = async (req,res) => {
             // console.log(data.teacher_id[i])
             const query = await Users.findById(data.teacher_id[i]);
             const details = {
+                user_id: query._id,
                 username: query.username,
                 email: query.email,
                 name: query.name,
@@ -37,6 +38,7 @@ exports.get = async (req,res) => {
             // console.log(data.teacher_id[i])
             const query = await Users.findById(data.student_id[i]);
             const details = {
+                user_id: query._id,
                 username: query.username,
                 email: query.email,
                 name: query.name,
@@ -144,6 +146,64 @@ exports.editDetails = async (req,res) => {
 
         const updated_class_data = await Classes.findOneAndUpdate({ class_code : classcode }, query);
         res.status(200).json({result: 'OK', message: 'success edited class details'});
+    } catch (e) {
+        res.status(500).json({result: 'Internal Server Error', message: ''});
+    }
+};
+
+exports.editRoles = async (req,res) => {
+    const user_id = req.userId;
+    const classcode = req.body.class_code;
+    const data = req.body.data;
+
+    if (!classcode||!data) return res.status(400).json({result: 'Bad request', message: ''});
+    if (!data.teacher_id||!data.student_id) return res.status(400).json({result: 'Bad request', message: ''});
+
+    try {
+        const query = await Classes.findOne({ class_code: classcode })
+        if (!query) return res.status(404).json({result: 'Not found', message: ''});
+        if (!query.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+
+        const user_idArr = []
+        for(let i = 0 ; i < data.student_id.length ; i++) {
+            user_idArr.push(data.student_id[i]);
+        }
+
+        for(let i = 0 ; i < data.teacher_id.length ; i++) {
+            user_idArr.push(data.teacher_id[i]);
+        }
+
+        user_idArr.map(usrid => {
+            if(!query.teacher_id.includes(usrid) && !query.student_id.includes(usrid)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        });
+
+        if (data.teacher_id.length >= 1 ) {
+            for(let i = 0 ; i < data.teacher_id.length ; i++){
+                const usr = await Users.findById(data.teacher_id[i]);
+                for(let j = 0 ; j < usr.class.length ; j++) {
+                    usr.class[j].role = 'teacher'
+                    await Users.findByIdAndUpdate(data.teacher_id[i], usr);
+                }
+            }
+
+            for(let i = 0 ; i < data.student_id.length ; i++){
+                const usr = await Users.findById(data.student_id[i]);
+                for(let j = 0 ; j < usr.class.length ; j++) {
+                    usr.class[j].role = 'student'
+                    await Users.findByIdAndUpdate(data.student_id[i], usr);
+                }
+            }
+
+            query.teacher_id = data.teacher_id;
+            query.student_id = data.student_id;
+            const updated_class_data = await Classes.findOneAndUpdate({ class_code : classcode }, query);
+        }
+        else {
+            return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        }
+        
+        res.status(200).json({result: 'OK', message: 'success edited class details'});
+        
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }

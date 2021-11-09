@@ -15,13 +15,12 @@ module.exports = {
       issuer: i,
       subject: s,
       audience: a,
-      expiresIn: expiresIn, // 30 days validity
+      expiresIn: expiresIn,
       algorithm: 'RS256',
     };
     return jwt.sign(payload, privateKEY, signOptions);
   },
   verify: (req, res, next) => {
-    //next();
     var token = req.headers.authorization
       ? req.headers.authorization.split(' ')[1]
       : null;

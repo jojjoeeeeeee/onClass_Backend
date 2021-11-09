@@ -50,8 +50,107 @@
     ]
 }
 
+{
+    "class_code": "oana5uZDKz",
+    "data": {
+        "id": "618594e504328baabcdb25a6",
+        "optional_setting": {
+            "random_question": false,
+            "random_choice": false,
+            "std_getResult": false
+        },
+        "exam_name": "TestExam",
+        "exam_description": "hello description",
+        "author": "6154ee36706a33eef43488cb",
+        "part_list": [
+            {
+                "part_id": "1",
+                "type": "objective",
+                "part_name": "ปรนัย",
+                "part_description": "",
+                "start_date": "2021-10-30T00:02:35.109Z",
+                "end_date": "2021-10-31T00:02:35.109Z",
+                "score": 10,
+                "item": [
+                    {
+                        "question": "Which one correct",
+                        "type": "one",
+                        "image": "",
+                        "choice": [
+                            "True",
+                            "False1",
+                            "False2",
+                            "False3"
+                        ],
+                        "answer": [
+                            "3"
+                        ],
+                        "score": "5"
+                    },
+                    {
+                        "question": "Who program this website",
+                        "type": "one",
+                        "image": "",
+                        "choice": [
+                            "eiei",
+                            "Jojoe",
+                            "kiki",
+                            "mumi"
+                        ],
+                        "answer": [
+                            "1"
+                        ],
+                        "score": "5"
+                    }
+                ]
+            },
+            {
+                "part_id": "2",
+                "type": "subjective",
+                "part_name": "ตอบสั้นๆ",
+                "part_description": "",
+                "start_date": "2021-10-30T00:02:35.109Z",
+                "end_date": "2021-10-31T00:02:35.109Z",
+                "score": 30,
+                "item": [
+                    {
+                        "question": "What framework use on backend",
+                        "type": "short",
+                        "image": "",
+                        "score": "10"
+                    },
+                    {
+                        "question": "Describe how this website come",
+                        "type": "paragraph",
+                        "image": "",
+                        "score": "20"
+                    }
+                ]
+            }
+        ],
+        "exam_optional_file": [],
+        "exam_start_date": "2021-10-30T00:02:35.109Z",
+        "exam_end_date": "2021-10-31T00:02:35.109Z"
+    }
+}
+
+//subjective score added
+{   
+    "class_code": "oana5uZDKz",
+    "exam_id": "618594e504328baabcdb25a6",
+    "data": [
+        {
+            "student_id": "615615edc50dfddae86bd538",
+            "part_id": "2",
+            "part_type": "subjective",
+            "part_score": [9,15],
+            "sum_score": 24
+        }
+    ]
+}
+
 -> TEACHER
-Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNTRlZTM2NzA2YTMzZWVmNDM0ODhjYiIsImlhdCI6MTYzNjIzNjQxMiwiZXhwIjoxNjM2MzIyODEyLCJhdWQiOiJodHRwOi8vMTI3LjAuMC4xOjgwODAiLCJpc3MiOiJDb3NjaSIsInN1YiI6InBoYWtraGFyYWNoYXRlLmpvbkBnbWFpbC5jb20ifQ.EMd3gt44QeVJ5Xv5lS0yXW74D2bchRBffvnleJMYkxgpH1Kpk_jKSVBILZJ2tZMX_eh4VsGuh5sIrw-j14Cl0yg0dRNkKvykErEjIP5VAMBDTHMfSdkpycC-v_IPC8wbR9iujq6rP441Z18ZOMtjZCqIeWgFyhXgEiDSkS1lEkk
+Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNTRlZTM2NzA2YTMzZWVmNDM0ODhjYiIsImlhdCI6MTYzNjQxNDM2MSwiZXhwIjoxNjM2NTAwNzYxLCJhdWQiOiJodHRwOi8vMTI3LjAuMC4xOjgwODAiLCJpc3MiOiJDb3NjaSIsInN1YiI6InBoYWtraGFyYWNoYXRlLmpvbkBnbWFpbC5jb20ifQ.iZF9we5InIuJJw1IwF1xxCmvXErpoAo-oLt9IPFW0le4P2kAdotdaO9WVASab9JsMJU54NBORkKkQRnb3DEjOXqJQLjzHfnouT3NGrNwsxZkfDzxtB28PzccDelJGUuzuwu_d5oDYJVD0wh6nlDY529hxf7p1mfS_7fx-1VU9qg
 
 -> STUDENT
-Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNTYxNWVkYzUwZGZkZGFlODZiZDUzOCIsImlhdCI6MTYzNjIzNjQ3MiwiZXhwIjoxNjM2MzIyODcyLCJhdWQiOiJodHRwOi8vMTI3LjAuMC4xOjgwODAiLCJpc3MiOiJDb3NjaSIsInN1YiI6InBoYWtraGFyYWNoYXRlLmpvbkBnbWFpbC5jb20ifQ.XqxSC5dVmL_kp00qVHAU9yAp1cNa9-NeQhsTvr-4A7IV35p62qEf4eq4HabzFdCVNj-XwHqvQM6HpYcsbopRmJm6jKwqpzvnoLQd4bFoNGoE-_7c6MshftDg89ivSETiURuWKUE2Vn_MtW2QoR4uZVpgNj6GE1DbyfbTizL46WY
+Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNTYxNWVkYzUwZGZkZGFlODZiZDUzOCIsImlhdCI6MTYzNjQxNTMxNSwiZXhwIjoxNjM2NTAxNzE1LCJhdWQiOiJodHRwOi8vMTI3LjAuMC4xOjgwODAiLCJpc3MiOiJDb3NjaSIsInN1YiI6InBoYWtraGFyYWNoYXRlLmpvbkBnbWFpbC5jb20ifQ.beM9E16AQVjjo2CeL-9PbKmOLuPRxYr0F8ZKN50WMuQznFd25fondMHY1GJiBdhKBjP6HuI1BjzdcXd5l_HUTwTk7nZnCcH5lFV1y7aWp0sV_h4lxAUUquQAv-ucNrucYeVZXXoB40_91Ycqz7ixT8tcPiFjiZUtUhL9aRynXSs

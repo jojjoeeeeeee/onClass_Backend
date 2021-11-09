@@ -215,6 +215,61 @@ exports.stdSubmit = async (req,res) => {
 
 };
 
+exports.scoreSubjective = async (req,res) => {
+    const user_id = req.userId;
+    const classcode = req.body.class_code;
+    const exam_id = req.body.exam_id;
+    const score_data = req.body.data;
+
+    if (!classcode||!exam_id||!score_data) return res.status(400).json({result: 'Bad request', message: ''});
+
+    try {
+        const class_data = await Classes.findOne({ class_code: classcode });
+        if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
+        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+
+        if (!class_data.class_exam_id.includes(exam_id)) return res.status(404).json({result: 'Not found', message: ''});
+
+        const exam_data = await Exams.findById(exam_id);
+        if (!exam_data) return res.status(404).json({result: 'Not found', message: ''});
+        const exam_result_data = await ExamResults.findOne({ exam_id : exam_id });
+
+        const partIdArr = exam_data.part_list.map((part) => {
+            if (part.type == 'subjective') return part.part_id
+        })
+
+        const alreadyScoreStdArr = exam_result_data.student_score.map((score) => {
+            if (partIdArr.includes(score.part_id)) return score.student_id+score.part_id
+        });
+
+        const isScorePartValid = score_data.map(key => {
+            if (!partIdArr.includes(key.part_id)||key.part_type == "objective") return;
+            return key
+        });
+
+        if ( typeof isScorePartValid[0] == "undefined") return res.status(400).json({result: 'Bad request', message: ''});
+
+        score_data.map(key => {
+            alreadyScoreStdArr.map(alreadyVal => {
+                if (alreadyVal == key.student_id+key.part_id) {
+                    exam_result_data.student_score.map((std,index) => {
+                        if (std.student_id+std.part_id == key.student_id+key.part_id && std.part_type == 'subjective') {
+                            exam_result_data.student_score.splice(index,1)
+                        }
+                    });
+                }
+            });
+            exam_result_data.student_score.push(key);
+        });
+        
+
+        await ExamResults.findOneAndUpdate({ exam_id: exam_id}, exam_result_data); 
+        res.status(200).json({result: 'OK', message: 'success added student subjective score'});
+    } catch (e) {
+        res.status(500).json({result: 'Internal Server Error', message: ''});
+    }
+};
+
 exports.getResultForTeacher = async (req,res) => {
     const user_id = req.userId;
     const classcode = req.body.class_code;
@@ -234,11 +289,11 @@ exports.getResultForTeacher = async (req,res) => {
         const exam_result_data = await ExamResults.findOne({ exam_id : exam_id });
 
         const partIdArr = exam_data.part_list.map((part) => {
-            return part.part_id
+            if (part.type == 'objective') return part.part_id
         })
 
         const alreadyScoreStdArr = exam_result_data.student_score.map((score) => {
-            if (partIdArr.includes(score.part_id)) return score.student_id
+            if (partIdArr.includes(score.part_id)) return score.student_id+score.part_id
         });
 
         const stdScoreData = await ExamResults.findOne({ exam_id : exam_id});
@@ -270,13 +325,16 @@ exports.getResultForTeacher = async (req,res) => {
                         part_score: stdPartScore,
                         sum_score: stdPartScore.reduce((previousValue, currentValue) => previousValue + currentValue)
                     }
-                    if (alreadyScoreStdArr.includes(result.student_id)) {
-                        stdScoreData.student_score.map((std,index) => {
-                            if (std.student_id == result.student_id) {
-                                stdScoreData.student_score.splice(index)
-                            }
-                        });
-                    }
+
+                    alreadyScoreStdArr.map(alreadyVal => {
+                        if (alreadyVal == result.student_id+result.part_id) {
+                            stdScoreData.student_score.map((std,index) => {
+                                if (std.student_id+std.part_id == result.student_id+result.part_id && std.part_type == 'objective') {
+                                    stdScoreData.student_score.splice(index,1)
+                                }
+                            });
+                        }
+                    });
                     stdScoreData.student_score.push(scoreSchema);    
                 }
             });
@@ -288,14 +346,15 @@ exports.getResultForTeacher = async (req,res) => {
             await ExamResults.findOneAndUpdate({ exam_id: exam_id}, stdScoreData); 
             const new_exam_result_data = await ExamResults.findOne({ exam_id : exam_id });
 
-            const std_result = {
-                name: {},
-                part_id: "",
-                part_type: "",
-                answer: []
-            }
+            
             const std_result_res_arr = []
             new_exam_result_data.student_result.map(key => {
+                const std_result = {
+                    name: {},
+                    part_id: "",
+                    part_type: "",
+                    answer: []
+                }
                 class_data.nickname.map(nickKey => {
                     if (nickKey.user_id == key.student_id) {
                         std_result.name = nickKey;
@@ -307,15 +366,16 @@ exports.getResultForTeacher = async (req,res) => {
                 std_result_res_arr.push(std_result);
             });
 
-            const std_score = {
-                name: {},
-                part_id: "",
-                part_type: "",
-                part_score: [],
-                sum_score: 0
-            }
+            
             const std_score_res_arr = []
             new_exam_result_data.student_score.map(key => {
+                const std_score = {
+                    name: {},
+                    part_id: "",
+                    part_type: "",
+                    part_score: [],
+                    sum_score: 0
+                }
                 class_data.nickname.map(nickKey => {
                     if (nickKey.user_id == key.student_id) {
                         std_score.name = nickKey;
@@ -397,12 +457,12 @@ exports.edit = async (req,res) => {
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
         
-         //Validate time
-         const now = moment()
-         const start = moment(exam_data.exam_start_date);
-         const end = moment(exam_data.exam_end_date);
-         if (now.isBefore(end) && now.isAfter(start)) return res.status(403).json({result: 'Forbiden', message: 'Its not the time when you can take the exam'});
- 
+        //Validate time
+        const now = moment()
+        const start = moment(exam_data.exam_start_date);
+        const end = moment(exam_data.exam_end_date);
+        if (now.isBefore(end) && now.isAfter(start)) return res.status(403).json({result: 'Forbiden', message: 'Its not the time when you can take the exam'});
+        
         if ( typeof exam.optional_setting.random_question != 'boolean' || typeof exam.optional_setting.random_choice != 'boolean' || typeof exam.optional_setting.std_getResult != 'boolean') return res.status(400).json({result: 'Bad request', message: ''})
 
         const class_exam_result = await ExamResults.findOne({ exam_id: exam_id, class_code: classcode });
@@ -421,6 +481,9 @@ exports.edit = async (req,res) => {
                 return key.part_id+key.type+key.item.length
             });
 
+            //เพิ่มหรือลบไม่ได้เลย ถ้ามี ifนี้
+            if (exam_data_part.length != exam_part.length) return res.status(400).json({result: 'Bad request', message: ''});
+            //เพิ่มได้ลบไม่ได้
             for (let i = 0 ; i < exam_data_part.length ; i++){
                 if (exam_data_part[i] != exam_part[i]) return res.status(400).json({result: 'Bad request', message: ''});
             }
@@ -450,7 +513,7 @@ exports.delete = async (req,res) => {
         class_data.map( async data => {
             const class_exam_id = data.class_exam_id
             const class_exam_id_index = class_exam_id.indexOf(exam_id)
-            class_exam_id.splice(class_exam_id_index)
+            class_exam_id.splice(class_exam_id_index,1)
             await Classes.findOneAndUpdate({class_code: data.class_code}, data);
         });
 

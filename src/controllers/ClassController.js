@@ -215,7 +215,7 @@ exports.leave = async (req,res) => {
 
         const student_id = query.student_id;
         const student_id_index = student_id.indexOf(user_id)
-        student_id.splice(student_id_index)
+        student_id.splice(student_id_index,1)
 
         const data = await Classes.findOneAndUpdate({ class_code: classcode }, query);
 
@@ -223,7 +223,7 @@ exports.leave = async (req,res) => {
         const query_user = await Users.findById(user_id);
         var user_class = query_user.class
         const user_class_index = user_class.indexOf(classcode)
-        user_class.splice(user_class_index)
+        user_class.splice(user_class_index,1)
 
         const new_data_user = query_user;
         new_data_user.class = user_class;

@@ -7,7 +7,7 @@ const { arraysEqual } = require('../services/function');
 
 const moment = require('moment');
 
-exports.details = async (req,res) => {
+exports.get = async (req,res) => {
 
     const user_id = req.userId;
     const classcode = req.body.class_code;

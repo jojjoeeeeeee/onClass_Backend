@@ -5,6 +5,47 @@ const Exams = require('../models/exam/examination_schema')
 const { generateClasscode } = require('../services/function');
 const { classValidation, classNicknameValidation } = require('../services/validation');
 
+exports.getAll = async (req,res) => {
+    const user_id = req.userId;
+    
+    try {
+        const user = await Users.findById(user_id);
+        if (user.class.length == 0) return res.status(200).json({result: 'OK', message: 'No class', data: []});
+
+        const res_class_data = []
+        for(let i = 0 ; i < user.class.length ; i++) {
+            const data = await Classes.findOne({ class_code: user.class[i].class_code });
+
+            const query_first_teacher = await Users.findById(data.teacher_id[0]);
+            const first_teacher_details = {
+                user_id: query_first_teacher._id,
+                username: query_first_teacher.username,
+                email: query_first_teacher.email,
+                name: query_first_teacher.name,
+                optional_contact: query_first_teacher.optional_contact,
+                profile_pic: query_first_teacher.profile_pic
+            }
+
+            const class_details = {
+                class_code: data.class_code,
+                class_name: data.class_name,
+                class_description: data.class_description,
+                class_section: data.class_section,
+                class_room: data.class_room,
+                class_subject: data.class_subject,
+                class_thumbnail: data.class_thumbnail,
+                teacher: first_teacher_details
+            }
+
+            res_class_data.push(class_details);
+        }
+
+        res.status(200).json({result: 'OK', message: '', data: res_class_data});
+    } catch (e) {
+        res.status(500).json({result: 'Internal Server Error', message: ''});
+    }
+};
+
 exports.get = async (req,res) => {
 
     const user_id = req.userId;
@@ -201,7 +242,7 @@ exports.editRoles = async (req,res) => {
         else {
             return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
         }
-        
+
         res.status(200).json({result: 'OK', message: 'success edited class details'});
         
     } catch (e) {
@@ -211,7 +252,6 @@ exports.editRoles = async (req,res) => {
 
 exports.join = async (req,res) => {
     const user_id = req.userId;
-
     const classcode  = req.body.class_code;
     if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
     

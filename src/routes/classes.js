@@ -4,6 +4,7 @@ const jwt = require('../jwt');
 
 const ClassController = require('../controllers/ClassController');
 
+router.get('/get/all', jwt.verify, ClassController.getAll)
 router.get('/get/:class_code', jwt.verify, ClassController.get);
 router.post('/create', jwt.verify, ClassController.create);
 router.patch('/edit/details', jwt.verify, ClassController.editDetails)

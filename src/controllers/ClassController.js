@@ -1,6 +1,7 @@
 const Users = require('../models/user_schema');
 const Classes = require('../models/class_schema');
 const Exams = require('../models/exam/examination_schema')
+const Posts = require('../models/post_schema');
 
 const { generateClasscode } = require('../services/function');
 const { classValidation, classNicknameValidation } = require('../services/validation');
@@ -88,6 +89,23 @@ exports.get = async (req,res) => {
             student_data.push(details);
         }
 
+        const post_data = []
+        for(let i = 0 ; i < data.class_post_id.length ; i++) {
+            const query = await Posts.findById(data.class_post_id[i]);
+            const details = {
+                id: query._id,
+                post_author: {},
+                profile_pic: "",
+                type: query.type,
+                post_content: query.post_content,
+                post_optional_file: query.post_optional_file,
+                poll: query.poll,
+                comment: query.comment.length,
+                created: query.created
+            }
+            post_data.push(details);
+        }
+
         const exam_data = []
         for(let i = 0 ; i < data.class_exam_id.length ; i++) {
             const query = await Exams.findById(data.class_exam_id[i]);
@@ -113,7 +131,7 @@ exports.get = async (req,res) => {
             teacher: teacher_data,
             student: student_data,
             class_assignment_id: data.class_assignment_id,
-            class_post_id: data.class_post_id,
+            class_post: post_data,
             class_exam: exam_data,
             nickname: data.nickname
         }

@@ -41,9 +41,16 @@ exports.login = async (req,res) => {
                 const payload = {
                     id: data._id
                 };
+
+                const userSchema = {
+                    username: data.username,
+                    email: data.email,
+                    profile_pic: data.profile_pic,
+                    name: data.name
+                }
                 const token = jwt.sign(payload, '24h');
       
-                res.status(200).header('Authorization', `Bearer ${token}`).json({ result: 'OK', message: 'success signed in' });
+                res.status(200).header('Authorization', `Bearer ${token}`).json({ result: 'OK', message: 'success signed in', data: userSchema });
             } else {
                 res.status(400).json({ result: 'Bad request', message: 'invalid username or password' });
             }

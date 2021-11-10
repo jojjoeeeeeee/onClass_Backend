@@ -30,7 +30,7 @@ exports.get = async (req,res) => {
             const now = moment()
             const start = moment(exam_data.exam_start_date);
             const end = moment(exam_data.exam_end_date);
-            if (now.isBefore(start) || now.isAfter(end)) return res.status(403).json({result: 'Forbiden', message: 'Its not the time when you can take the exam'});
+            if (now.isBefore(start) || now.isAfter(end)) return res.status(200).json({result: 'nOK', message: 'Its not the time when you can take the exam'});
 
             //Already submit validate
             const examResultData = await ExamResults.findOne({ exam_id : exam_id});
@@ -38,7 +38,7 @@ exports.get = async (req,res) => {
             examResultData.student_result.map((examKey) => {
                 if (examKey.student_id == user_id) return already = true
             });
-            if (already) return res.status(403).json({result: 'Forbiden', message: 'You already submit this exam'});
+            if (already) return res.status(200).json({result: 'nOK', message: 'You already submit this exam'});
 
 
             const res_part = []
@@ -184,7 +184,7 @@ exports.stdSubmit = async (req,res) => {
         const now = moment()
         const start = moment(exam_data.exam_start_date);
         const end = moment(exam_data.exam_end_date);
-        if (now.isBefore(start) || now.isAfter(end)) return res.status(403).json({result: 'Forbiden', message: 'Its not the time when you can take the exam'});
+        if (now.isBefore(start) || now.isAfter(end)) return res.status(200).json({result: 'nOK', message: 'Its not the time when you can take the exam'});
         
         //Already submit validate
         const examResultData = await ExamResults.findOne({ exam_id : exam_id});
@@ -193,7 +193,7 @@ exports.stdSubmit = async (req,res) => {
                 if (examKey.student_id == user_id && examKey.part_id == resultKey.part_id) return resultKey
             });
         });
-        if (!already.length == 0) return res.status(403).json({result: 'Forbiden', message: 'You already submit this exam'});
+        if (!already.length == 0) return res.status(200).json({result: 'nOK', message: 'You already submit this exam'});
 
         //Create result schema
         const stdResultData = await ExamResults.findOne({ exam_id : exam_id});
@@ -461,7 +461,7 @@ exports.edit = async (req,res) => {
         const now = moment()
         const start = moment(exam_data.exam_start_date);
         const end = moment(exam_data.exam_end_date);
-        if (now.isBefore(end) && now.isAfter(start)) return res.status(403).json({result: 'Forbiden', message: 'Its not the time when you can take the exam'});
+        if (now.isBefore(end) && now.isAfter(start)) return res.status(200).json({result: 'nOK', message: 'Its not the time when you can take the exam'});
         
         if ( typeof exam.optional_setting.random_question != 'boolean' || typeof exam.optional_setting.random_choice != 'boolean' || typeof exam.optional_setting.std_getResult != 'boolean') return res.status(400).json({result: 'Bad request', message: ''})
 

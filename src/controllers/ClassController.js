@@ -8,7 +8,7 @@ const { classValidation, classNicknameValidation } = require('../services/valida
 
 exports.getAll = async (req,res) => {
     const user_id = req.userId;
-    
+
     try {
         const user = await Users.findById(user_id);
         if (user.class.length == 0) return res.status(200).json({result: 'OK', message: 'No class', data: []});
@@ -153,7 +153,7 @@ exports.create = async (req,res) => {
     const user_id = req.userId;
 
     const { error } = classValidation(req.body);
-    if (error) return res.status(400).json({result: 'Bad request', message: error.details[0].message});
+    if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
 
     var classcode = generateClasscode();
     var classcodeExist = await Classes.findOne({ class_code : classcode });
@@ -193,7 +193,7 @@ exports.editDetails = async (req,res) => {
     if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
 
     const { error } = classValidation(req.body.data);
-    if (error) return res.status(400).json({result: 'Bad request', message: error.details[0].message});
+    if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
 
     const data = req.body.data;
 
@@ -282,7 +282,7 @@ exports.join = async (req,res) => {
     try {
         const query = await Classes.findOne({ class_code: classcode })
         if (!query) return res.status(404).json({result: 'Not found', message: ''});
-        if (query.teacher_id.includes(user_id) || query.student_id.includes(user_id)) return res.status(200).json({result: 'OK', message: 'failed you already joned'});
+        if (query.teacher_id.includes(user_id) || query.student_id.includes(user_id)) return res.status(200).json({result: 'nOK', message: 'failed you already joned'});
 
         var student_id = query.student_id;
         student_id.push(user_id);
@@ -314,7 +314,7 @@ exports.nickname = async (req,res) => {
     const user_id = req.userId;
 
     const { error } = classNicknameValidation(req.body);
-    if (error) return res.status(400).json({result: 'Bad request', message: error.details[0].message});
+    if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
 
     const classcode = req.body.class_code;
     
@@ -364,7 +364,7 @@ exports.leave = async (req,res) => {
         if (!query) return res.status(404).json({result: 'Not found', message: ''});
         if (!query.teacher_id.includes(user_id) && !query.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
 
-        if (query.teacher_id.includes(user_id)) return res.status(200).json({result: 'OK', message: 'failed you are class teacher'});
+        if (query.teacher_id.includes(user_id)) return res.status(200).json({result: 'nOK', message: 'failed you are class teacher'});
 
         const student_id = query.student_id;
         const student_id_index = student_id.indexOf(user_id)

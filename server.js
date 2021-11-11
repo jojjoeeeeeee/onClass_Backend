@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 
-// app.use(express.static(__dirname + "/uploaded"));
+app.use('/public/img', express.static(__dirname + '/public/img'));
 app.use('/api', require('./src/middlewares/api'));
 
 const port = process.env.SERVER_PORT;

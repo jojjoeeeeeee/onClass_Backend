@@ -2,6 +2,7 @@ const Users = require('../models/user_schema');
 const Classes = require('../models/class_schema');
 const Exams = require('../models/exam/examination_schema')
 const Posts = require('../models/post_schema');
+const Files = require('../models/file_schema');
 
 const { generateClasscode } = require('../services/function');
 const { classValidation, classNicknameValidation } = require('../services/validation');
@@ -18,14 +19,19 @@ exports.getAll = async (req,res) => {
             const data = await Classes.findOne({ class_code: user.class[i].class_code });
 
             const query_first_teacher = await Users.findById(data.teacher_id[0]);
+            
+
             const first_teacher_details = {
                 user_id: query_first_teacher._id,
                 username: query_first_teacher.username,
                 email: query_first_teacher.email,
                 name: query_first_teacher.name,
                 optional_contact: query_first_teacher.optional_contact,
-                profile_pic: query_first_teacher.profile_pic
+                profile_pic: ''
             }
+
+            const profile_pic = await Files.findById(query_first_teacher.profile_pic);
+            first_teacher_details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
 
             const class_details = {
                 class_code: data.class_code,
@@ -34,9 +40,12 @@ exports.getAll = async (req,res) => {
                 class_section: data.class_section,
                 class_room: data.class_room,
                 class_subject: data.class_subject,
-                class_thumbnail: data.class_thumbnail,
+                class_thumbnail: '',
                 teacher: first_teacher_details
             }
+
+            const thumbnail = await Files.findById(data.class_thumbnail);
+            class_details.class_thumbnail = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${thumbnail.file_path}`
 
             res_class_data.push(class_details);
         }
@@ -68,8 +77,11 @@ exports.get = async (req,res) => {
                 email: query.email,
                 name: query.name,
                 optional_contact: query.optional_contact,
-                profile_pic: query.profile_pic
+                profile_pic: ''
             }
+
+            const profile_pic = await Files.findById(query.profile_pic);
+            details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
             teacher_data.push(details);
             
         }
@@ -84,8 +96,11 @@ exports.get = async (req,res) => {
                 email: query.email,
                 name: query.name,
                 optional_contact: query.optional_contact,
-                profile_pic: query.profile_pic
+                profile_pic: ''
             }
+
+            const profile_pic = await Files.findById(query.profile_pic);
+            details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
             student_data.push(details);
         }
 
@@ -93,17 +108,33 @@ exports.get = async (req,res) => {
         for(let i = 0 ; i < data.class_post_id.length ; i++) {
             const query = await Posts.findById(data.class_post_id[i]);
             const user_query = await Users.findById(query.post_author_id);
+
+            const file_arr = []
+            for(let j = 0; j < query.post_optional_file.length; j++){
+                const file_data = await Files.findById(query.post_optional_file[j]);
+                if(!file_data) return res.status(404).json({result: 'Not found', message: ''});
+                const file_obj = {
+                    file_name: file_data.file_name,
+                    file_extension: file_data.filename_extension,
+                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/file/download/${file_data._id}`
+                }
+                file_arr.push(file_obj)
+            }
+
             const details = {
                 id: query._id,
                 post_author: {},
-                profile_pic: user_query.profile_pic,
+                profile_pic: '',
                 type: query.type,
                 post_content: query.post_content,
-                post_optional_file: query.post_optional_file,
+                post_optional_file: file_arr,
                 poll: query.poll,
                 comment: query.comment.length,
                 created: query.created
             }
+
+            const profile_pic = await Files.findById(user_query.profile_pic);
+            details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
 
             data.nickname.map(nickKey => {
                 if (nickKey.user_id == query.post_author_id) {
@@ -134,7 +165,7 @@ exports.get = async (req,res) => {
             class_section: data.class_section,
             class_room: data.class_room,
             class_subject: data.class_subject,
-            class_thumbnail: data.class_thumbnail,
+            class_thumbnail: '',
             teacher: teacher_data,
             student: student_data,
             class_assignment_id: data.class_assignment_id,
@@ -142,6 +173,9 @@ exports.get = async (req,res) => {
             class_exam: exam_data,
             nickname: data.nickname
         }
+
+        const thumbnail = await Files.findById(data.class_thumbnail);
+        res_data.class_thumbnail = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${thumbnail.file_path}`
 
         res.status(200).json({result: 'OK', message: '', data: res_data});
     } catch (e) {

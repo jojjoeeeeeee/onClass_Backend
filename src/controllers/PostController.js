@@ -1,6 +1,7 @@
 const Users = require('../models/user_schema');
 const Classes = require('../models/class_schema');
 const Posts = require('../models/post_schema');
+const Files = require('../models/file_schema');
 
 exports.get = async (req,res) => {
     const user_id = req.userId;
@@ -17,21 +18,39 @@ exports.get = async (req,res) => {
         const post_data = await Posts.findById(post_id);
         if (!post_data) res.status(404).json({result: 'Not found', message: ''});
 
+        const file_id = post_data.post_optional_file.map(key => {
+            return key
+        })
+
+        const file_arr = []
+        for(let i = 0; i < file_id.length; i++){
+            const file_data = await Files.findById(file_id[i]);
+            if(!file_data) return res.status(404).json({result: 'Not found', message: ''});
+            const file_obj = {
+                file_name: file_data.file_name,
+                file_extension: file_data.filename_extension,
+                file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/file/download/${file_data._id}`
+            }
+            file_arr.push(file_obj)
+        }
+
+
         const postSchema = {
             id: post_data._id,
             class_code: post_data.classcode,
             post_author: {},
-            profile_pic: "",
+            profile_pic: '',
             type: post_data.type,
             post_content: post_data.post_content,
-            post_optional_file: post_data.post_optional_file,
+            post_optional_file: file_arr,
             poll: post_data.poll,
             comment: [],
             created: post_data.created
         }
 
         const author = await Users.findById(post_data.post_author_id);
-        postSchema.profile_pic = author.profile_pic;
+        const profile_pic = await Files.findById(author.profile_pic);
+        postSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
 
         class_data.nickname.map(nickKey => {
             if (nickKey.user_id == post_data.post_author_id) {
@@ -43,7 +62,7 @@ exports.get = async (req,res) => {
         for (let i = 0 ; i < post_data.comment.length ; i++) {
             const commentSchema = {
                 comment_author: {},
-                profile_pic: "",
+                profile_pic: '',
                 content: post_data.comment[i].content,
                 create: post_data.comment[i].created
             }
@@ -55,7 +74,8 @@ exports.get = async (req,res) => {
             })
 
             const query = await Users.findById(post_data.comment[i].comment_author_id);
-            commentSchema.profile_pic = query.profile_pic;
+            const comment_profile_pic = await Files.findById(query.profile_pic);
+            commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
             postComment.push(commentSchema);
         }
 

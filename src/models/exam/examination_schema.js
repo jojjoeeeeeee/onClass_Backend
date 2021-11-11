@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const File = require('../file_model');
+// const File = require('../file_model');
 
 const part_schema = mongoose.Schema({
     part_id: String,
@@ -22,7 +22,7 @@ const schema = mongoose.Schema({
         std_getResult: {type: Boolean, default: false},
     },
     part_list: [part_schema],
-    exam_optional_file: [File],
+    exam_optional_file: [String],
     exam_start_date: Date,
     exam_end_date: Date,
     created: { type: Date, default: Date.now }

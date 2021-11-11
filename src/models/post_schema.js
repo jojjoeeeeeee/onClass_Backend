@@ -18,7 +18,7 @@ const schema = mongoose.Schema({
     post_author_id: String,
     type: String, //poll or normal
     post_content: String,
-    post_optional_file: [File],
+    post_optional_file: [String],
     poll: [poll_schema],
     comment: [Comment],
     created: { type: Date, default: Date.now }

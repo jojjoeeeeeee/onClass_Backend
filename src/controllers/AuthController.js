@@ -1,6 +1,7 @@
 const Users = require('../models/user_schema');
 const bcrypt = require('bcryptjs');
 const jwt = require('../jwt');
+const Files = require('../models/file_schema');
 
 const { loginValidation, registerValidation } = require('../services/validation');
 
@@ -45,12 +46,14 @@ exports.login = async (req,res) => {
                 const userSchema = {
                     username: data.username,
                     email: data.email,
-                    profile_pic: data.profile_pic,
+                    profile_pic: '',
                     name: data.name
                 }
+                const profile_pic = await Files.findById(data.profile_pic);
+                userSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+
                 const token = jwt.sign(payload, '24h');
-                res.status(403).json({result: 'Forbiden', message: 'Its not the time when you can take the exam'});
-                // res.status(200).header('Authorization', `Bearer ${token}`).json({ result: 'OK', message: 'success sign in', data: userSchema });
+                res.status(200).header('Authorization', `Bearer ${token}`).json({ result: 'OK', message: 'success sign in', data: userSchema });
             } else {
                 res.status(200).json({ result: 'nOK', message: 'invalid username or password' });
             }

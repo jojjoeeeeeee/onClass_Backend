@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const File = require('../file_schema');
+const File = require('../file_model');
 
 const result_schema = mongoose.Schema({
     student_id: String,

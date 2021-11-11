@@ -12,7 +12,7 @@ const schema = mongoose.Schema({
     assignment_description: String,
     turnin_late: Boolean,
     score: Number,
-    assignment_optional_file: [File],
+    assignment_optional_file: [String],
     comment: [comment_schema],
     assignment_start_date: { type: Date, default: Date.now },
     assignment_end_date: Date,

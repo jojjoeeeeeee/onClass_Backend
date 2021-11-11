@@ -2,6 +2,7 @@ const Users = require('../models/user_schema');
 const Classes = require('../models/class_schema');
 const Exams = require('../models/exam/examination_schema');
 const ExamResults = require('../models/exam/exam_result_schema');
+const Files = require('../models/file_schema');
 
 const { arraysEqual } = require('../services/function');
 
@@ -121,6 +122,22 @@ exports.get = async (req,res) => {
                 });
             }
 
+            const file_id = exam_data.exam_optional_file.map(key => {
+                return key
+            })
+    
+            const file_arr = []
+            for(let i = 0; i < file_id.length; i++){
+                const file_data = await Files.findById(file_id[i]);
+                if(!file_data) return res.status(404).json({result: 'Not found', message: ''});
+                const file_obj = {
+                    file_name: file_data.file_name,
+                    file_extension: file_data.filename_extension,
+                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/file/download/${file_data._id}`
+                }
+                file_arr.push(file_obj)
+            }
+
             const res_exam_data = {
                 id:exam_data._id,
                 optional_setting: exam_data.optional_setting,
@@ -128,7 +145,7 @@ exports.get = async (req,res) => {
                 exam_description: exam_data.exam_description,
                 author: exam_data.author,
                 part_list: res_part,
-                exam_optional_file: exam_data.exam_optional_file,
+                exam_optional_file: file_arr,
                 exam_start_date: exam_data.exam_start_date,
                 exam_end_date: exam_data.exam_end_date
             }
@@ -136,6 +153,23 @@ exports.get = async (req,res) => {
             res.status(200).json({result: 'OK', message: '', data: res_exam_data});
         }
         else {
+
+            const file_id = exam_data.exam_optional_file.map(key => {
+                return key
+            })
+    
+            const file_arr = []
+            for(let i = 0; i < file_id.length; i++){
+                const file_data = await Files.findById(file_id[i]);
+                if(!file_data) return res.status(404).json({result: 'Not found', message: ''});
+                const file_obj = {
+                    file_name: file_data.file_name,
+                    file_extension: file_data.filename_extension,
+                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/file/download/${file_data._id}`
+                }
+                file_arr.push(file_obj)
+            }
+
             const res_exam_data = {
                 id:exam_data._id,
                 optional_setting: exam_data.optional_setting,
@@ -143,7 +177,7 @@ exports.get = async (req,res) => {
                 exam_description: exam_data.exam_description,
                 author: exam_data.author,
                 part_list: exam_data.part_list,
-                exam_optional_file: exam_data.exam_optional_file,
+                exam_optional_file: file_arr,
                 exam_start_date: exam_data.exam_start_date,
                 exam_end_date: exam_data.exam_end_date
             }
@@ -510,12 +544,13 @@ exports.delete = async (req,res) => {
 
         const class_data = await Classes.find({ class_exam_id: exam_id });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        class_data.map( async data => {
-            const class_exam_id = data.class_exam_id
-            const class_exam_id_index = class_exam_id.indexOf(exam_id)
+
+        for(let i = 0; i < class_data.length ; i++){
+            const class_exam_id = class_data[i].class_exam_id;
+            const class_exam_id_index = class_exam_id.indexOf(exam_id);
             class_exam_id.splice(class_exam_id_index,1)
-            await Classes.findOneAndUpdate({class_code: data.class_code}, data);
-        });
+            await Classes.findOneAndUpdate({class_code: class_data[i].class_code}, class_data);
+        }
 
         const new_exam_data = await Exams.findByIdAndDelete(exam_id);
         const new_exam_result_data = await ExamResults.deleteMany({exam_id: exam_id});

@@ -2,6 +2,7 @@ const Users = require('../models/user_schema');
 const Classes = require('../models/class_schema');
 const Exams = require('../models/exam/examination_schema')
 const Posts = require('../models/post_schema');
+const Assignments = require('../models/assignment/assignment_schema');
 const Files = require('../models/file_schema');
 
 const { generateClasscode } = require('../services/function');
@@ -104,6 +105,36 @@ exports.get = async (req,res) => {
             student_data.push(details);
         }
 
+        const assignment_data = []
+        for(let i = 0 ; i < data.class_assignment_id.length ; i++) {
+            const query = await Assignments.findById(data.class_assignment_id[i]);
+
+            const file_arr = []
+            for(let j = 0; j < query.assignment_optional_file.length; j++){
+                const file_data = await Files.findById(query.assignment_optional_file[j]);
+                if(!file_data) return res.status(404).json({result: 'Not found', message: ''});
+                const file_obj = {
+                    file_name: file_data.file_name,
+                    file_extension: file_data.filename_extension,
+                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/file/download/${file_data._id}`
+                }
+                file_arr.push(file_obj)
+            }
+
+            const details = {
+                id: query._id,
+                assignment_name: query.assignment_name,
+                assignment_description: query.assignment_description,
+                turnin_late: query.turnin_late,
+                score: query.score,
+                assignment_optional_file: file_arr,
+                comment: query.comment.length,
+                assignment_start_date: query.assignment_start_date,
+                assignment_end_date: query.assignment_end_date
+            }
+            assignment_data.push(details);
+        }
+
         const post_data = []
         for(let i = 0 ; i < data.class_post_id.length ; i++) {
             const query = await Posts.findById(data.class_post_id[i]);
@@ -168,7 +199,7 @@ exports.get = async (req,res) => {
             class_thumbnail: '',
             teacher: teacher_data,
             student: student_data,
-            class_assignment_id: data.class_assignment_id,
+            class_assignment_id: assignment_data,
             class_post: post_data,
             class_exam: exam_data,
             nickname: data.nickname

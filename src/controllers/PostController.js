@@ -145,7 +145,11 @@ exports.deletePost = async (req,res) => {
 
         if (post_data.post_author_id != user_id) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
 
+        const post_index = class_data.class_post_id.indexOf(post_id);
+        class_data.class_post_id.splice(post_index,1);
+
         await Posts.findByIdAndDelete(post_id);
+        await Classes.findOneAndUpdate({class_code: classcode}, class_data);
         res.status(200).json({result: 'OK', message: 'success delete post'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

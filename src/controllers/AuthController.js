@@ -64,3 +64,22 @@ exports.login = async (req,res) => {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }
 };
+
+exports.isAuth = async (req,res) => {
+    const user_id = req.userId;
+    try {
+        const data = await Users.findById(user_id);
+        const userSchema = {
+            username: data.username,
+            email: data.email,
+            profile_pic: '',
+            name: data.name
+        }
+        const profile_pic = await Files.findById(data.profile_pic);
+        userSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+
+        res.status(200).json({ result: 'OK', message: 'success token provided', data: userSchema });
+    } catch (e) {
+        res.status(500).json({result: 'Internal Server Error', message: ''});
+    }
+}

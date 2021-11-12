@@ -96,26 +96,31 @@ exports.get = async (req,res) => {
             if (exam_data.optional_setting.random_choice) {
                 res_part.map((key) => {
                     key.item.map((k) => {
-                        var currentIndex = k.choice.length, temporaryValue, randomIndex;
+                        if (key.type == 'objective') {
+                            var currentIndex = k.choice.length, temporaryValue, randomIndex;
 
-                        const defaultArr = k.choice.map(i => {
-                            return i
-                        })
-                    
-                        while (0 !== currentIndex) {
-                            randomIndex = Math.floor(Math.random() * currentIndex);
-                            currentIndex -= 1;
-                            temporaryValue = k.choice[currentIndex];
-                            k.choice[currentIndex] = k.choice[randomIndex];
-                            k.choice[randomIndex] = temporaryValue;
+                            const defaultArr = k.choice.map(i => {
+                                return i
+                            })
+                        
+                            while (0 !== currentIndex) {
+                                randomIndex = Math.floor(Math.random() * currentIndex);
+                                currentIndex -= 1;
+                                temporaryValue = k.choice[currentIndex];
+                                k.choice[currentIndex] = k.choice[randomIndex];
+                                k.choice[randomIndex] = temporaryValue;
+                            }
+        
+                            const indexArr = defaultArr.map(obj => {
+                                return k.choice.indexOf(obj)
+                            })
+        
+                            k.choice_default_index = indexArr
+                            return k
                         }
-    
-                        const indexArr = defaultArr.map(obj => {
-                            return k.choice.indexOf(obj)
-                        })
-    
-                        k.choice_default_index = indexArr
-                        return k
+                        else {
+                            return k
+                        }
                     });
                     
                     return key

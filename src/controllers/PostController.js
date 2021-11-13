@@ -14,9 +14,9 @@ exports.get = async (req,res) => {
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
 
-        if (!class_data.class_post_id.includes(post_id)) res.status(404).json({result: 'Not found', message: ''});
+        if (!class_data.class_post_id.includes(post_id)) return res.status(404).json({result: 'Not found', message: ''});
         const post_data = await Posts.findById(post_id);
-        if (!post_data) res.status(404).json({result: 'Not found', message: ''});
+        if (!post_data) return res.status(404).json({result: 'Not found', message: ''});
 
         const file_id = post_data.post_optional_file.map(key => {
             return key
@@ -139,7 +139,7 @@ exports.deletePost = async (req,res) => {
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
 
-        if (!class_data.class_post_id.includes(post_id)) res.status(404).json({result: 'Not found', message: ''});
+        if (!class_data.class_post_id.includes(post_id)) return res.status(404).json({result: 'Not found', message: ''});
         const post_data = await Posts.findById(post_id);
         if (!post_data) return res.status(404).json({result: 'Not found', message: ''});
 
@@ -171,9 +171,9 @@ exports.comment = async (req,res) => {
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
 
-        if (!class_data.class_post_id.includes(post_id)) res.status(404).json({result: 'Not found', message: ''});
+        if (!class_data.class_post_id.includes(post_id)) return res.status(404).json({result: 'Not found', message: ''});
         const post_data = await Posts.findById(post_id);
-        if (!post_data) res.status(404).json({result: 'Not found', message: ''});
+        if (!post_data) return res.status(404).json({result: 'Not found', message: ''});
 
         const Comment = require('../models/comment_model');
         Comment.comment_author_id = user_id;
@@ -201,9 +201,9 @@ exports.deleteComment = async (req,res) => {
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
 
-        if (!class_data.class_post_id.includes(post_id)) res.status(404).json({result: 'Not found', message: ''});
+        if (!class_data.class_post_id.includes(post_id)) return res.status(404).json({result: 'Not found', message: ''});
         const post_data = await Posts.findById(post_id);
-        if (!post_data) res.status(404).json({result: 'Not found', message: ''});
+        if (!post_data) return res.status(404).json({result: 'Not found', message: ''});
 
         if (post_data.comment[comment_index].comment_author_id != user_id) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
 

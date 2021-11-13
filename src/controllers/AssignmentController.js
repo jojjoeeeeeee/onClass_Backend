@@ -5,6 +5,8 @@ const AssignmentResults = require('../models/assignment/assignment_result_schema
 
 const moment = require('moment');
 
+const turnIn_status = ['ส่งแล้ว','ส่งช้า','ยังไม่ส่ง','เลยกำหนดส่ง']
+
 exports.get = async (req,res) => {
     const user_id = req.userId;
     const classcode = req.body.class_code;
@@ -16,15 +18,22 @@ exports.get = async (req,res) => {
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
         
-        if (!class_data.class_assignment_id.includes(assignment_id)) res.status(404).json({result: 'Not found', message: ''});
+        if (!class_data.class_assignment_id.includes(assignment_id)) return res.status(404).json({result: 'Not found', message: ''});
         const assignment_data = await Assignments.findById(assignment_id);
-        if (!assignment_data) res.status(404).json({result: 'Not found', message: ''}); 
+        if (!assignment_data) return res.status(404).json({result: 'Not found', message: ''}); 
 
         if(class_data.student_id.includes(user_id)) {
             //Validate time
             const now = moment();
-            const end = moment(assignment_data.exam_end_date);
-            var can_submit = (now.isAfter(end) && assignment_data.turnin_late);
+            const end = moment(assignment_data.assignment_end_date);
+            //ส่งได้ก็ต่อเมื่อ ก่อนเวลาที่กำหนด หรือถ้าเลยเวลาแล้ว turnin_late จะต้องเป็นจริง
+            var can_submit = false
+            if (now.isBefore(end)) {
+                can_submit = true
+            }
+            else {
+                can_submit = (now.isAfter(end) && assignment_data.turnin_late);
+            }
 
             //File download path
             const file_id = assignment_data.assignment_optional_file.map(key => {
@@ -60,13 +69,14 @@ exports.get = async (req,res) => {
             }
 
             if (already) {
-                const std_result_index = assignmentResultData.student_result.map((assignmentKey,index) => {
-                    if (assignmentKey.student_id == user_id) return index
-                });
+                var std_result_index = -1
+                for(let i = 0; i < assignmentResultData.student_result.length; i++){
+                    if (assignmentResultData.student_result[i].student_id === user_id) {
+                        std_result_index = i
+                    }
+                }
 
-                const std_file_id = assignmentResultData.student_result[std_result_index].map(key => {
-                    return key.file_result
-                })
+                const std_file_id = assignmentResultData.student_result[std_result_index].file_result;
 
                 const std_file_arr = []
                 for(let i = 0; i < std_file_id.length; i++){
@@ -85,6 +95,23 @@ exports.get = async (req,res) => {
                 std_submitResult.isLate = assignmentResultData.student_result[std_result_index].isLate;
             }
 
+            //Status validate
+            var status = ''
+
+            if(already && !std_submitResult.isLate) {
+                status = turnIn_status[0] //ส่งแล้ว
+            }
+            else if(already && std_submitResult.isLate) {
+                status = turnIn_status[1] //ส่งช้า
+            }
+
+            if (!already && (now.isBefore(end) || assignment_data.turnin_late)) {
+                status = turnIn_status[2] //ยังไม่ส่ง
+            }
+            else if(!already && now.isAfter(end) && !assignment_data.turnin_late) {
+                status = turnIn_status[3] //เลยกำหนดส่ง
+            }
+
             const res_assignment_data = {
                 id:assignment_data._id,
                 assignment_name: assignment_data.assignment_name,
@@ -95,10 +122,11 @@ exports.get = async (req,res) => {
                 assignment_end_date: assignment_data.assignment_end_date,
                 can_submit: can_submit,
                 submit_result: std_submitResult,
+                status: status,
                 comment: [],
                 role: 'student'
             }
-
+            
             const assignmentComment = []
             for (let i = 0 ; i < assignment_data.comment.length ; i++) {
                 const commentSchema = {
@@ -185,11 +213,143 @@ exports.get = async (req,res) => {
 };
 
 exports.getAll = async (req,res) => {
+    const user_id = req.userId;
+    const classcode = req.body.class_code;
+    if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
 
+    try {
+        const class_data = await Classes.findOne({ class_code: classcode })
+        if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+
+        const assignment_data = []
+        if (class_data.student_id.includes(user_id)) {
+            for(let i = 0 ; i < class_data.class_assignment_id.length ; i++) {
+                const query = await Assignments.findById(class_data.class_assignment_id[i]);
+
+                var status = ''
+
+                //Status validate
+
+                const assignmentResultData = await AssignmentResults.findOne({ assignment_id : query._id});
+                var already = false
+                var isLate = false
+                for(let i = 0 ; i < assignmentResultData.student_result.length; i++){
+                    if (assignmentResultData.student_result[i].student_id == user_id) {
+                        already = true
+                        isLate = assignmentResultData.student_result[i].isLate
+                    }
+                }
+
+                if(already && !isLate) {
+                    status = turnIn_status[0] //ส่งแล้ว
+                }
+                else if(already && isLate) {
+                    status = turnIn_status[1] //ส่งช้า
+                }
+
+                const now = moment();
+                const end = moment(query.assignment_end_date);
+                if (!already && (now.isBefore(end) || query.turnin_late)) {
+                    status = turnIn_status[2] //ยังไม่ส่ง
+                }
+                else if(!already && now.isAfter(end) && !query.turnin_late) {
+                    status = turnIn_status[3] //เลยกำหนดส่ง
+                }
+
+                const details = {
+                    id: query._id,
+                    assignment_name: query.assignment_name,
+                    assignment_description: query.assignment_description,
+                    score: query.score,
+                    assignment_start_date: query.assignment_start_date,
+                    assignment_end_date: query.assignment_end_date,
+                    created: moment(query.created),
+                    status: status
+                }
+
+                assignment_data.push(details);
+            }
+            const sorted_feed_data = assignment_data.sort((a, b) => a.created.valueOf() - b.created.valueOf())
+            res.status(200).json({result: 'OK', message: '', data: assignment_data.reverse()});
+        }
+        else {
+            for(let i = 0 ; i < class_data.class_assignment_id.length ; i++) {
+                const query = await Assignments.findById(class_data.class_assignment_id[i]);
+
+                //Submit Amount Validate
+                const assignmentResultData = await AssignmentResults.findOne({ assignment_id : query._id});
+                const student_submit_amont = assignmentResultData.student_result.length
+                const student_amount = class_data.student_id.length;
+                const status = `${student_submit_amont}/${student_amount}`
+    
+                const details = {
+                    id: query._id,
+                    assignment_name: query.assignment_name,
+                    assignment_description: query.assignment_description,
+                    score: query.score,
+                    assignment_start_date: query.assignment_start_date,
+                    assignment_end_date: query.assignment_end_date,
+                    created: moment(query.created),
+                    status: status
+                }
+
+                assignment_data.push(details);
+            }
+            const sorted_feed_data = assignment_data.sort((a, b) => a.created.valueOf() - b.created.valueOf())
+            res.status(200).json({result: 'OK', message: '', data: assignment_data.reverse()});
+        }
+    } catch (e) {
+        res.status(500).json({result: 'Internal Server Error', message: ''});
+    }
 };
 
 exports.getAllFromNotification = async (req,res) => {
+    const user_id = req.userId;
 
+    try {
+        const data = await Users.findById(user_id);
+
+        const res_data = []
+        for(let i = 0 ; i < data.notification.length ; i++) {
+            if (data.notification[i].type == 'assignment') {
+                const query = await Assignments.findById(data.notification[i].todo_id);
+                const class_data = await Classes.findOne({ class_code: data.notification[i].class_code});
+
+                var status = ''
+
+                //Status validate
+
+                const now = moment();
+                const end = moment(query.assignment_end_date);
+                if (now.isBefore(end) || query.turnin_late) {
+                    status = turnIn_status[2] //ยังไม่ส่ง
+                }
+                else if(now.isAfter(end) && !query.turnin_late) {
+                    status = turnIn_status[3] //เลยกำหนดส่ง
+                }
+
+                const details = {
+                    id: query._id,
+                    class_name: class_data.class_name,
+                    assignment_name: query.assignment_name,
+                    assignment_description: query.assignment_description,
+                    score: query.score,
+                    assignment_start_date: query.assignment_start_date,
+                    assignment_end_date: query.assignment_end_date,
+                    message: data.notification[i].message,
+                    created: moment(query.created),
+                    status: status
+                }
+
+                res_data.push(details);
+            }
+        }
+        const sorted_feed_data = res_data.sort((a, b) => a.created.valueOf() - b.created.valueOf())
+        res.status(200).json({result: 'OK', message: '', data: res_data.reverse()});
+    } catch (e) {
+        res.status(500).json({result: 'Internal Server Error', message: ''});
+    }
 };
 
 exports.create = async (req,res) => {
@@ -207,7 +367,7 @@ exports.create = async (req,res) => {
     try {
         const class_data = await Classes.findOne({ class_code: classcode })
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
 
         const assignmentSchema = {
             class_code: classcode,
@@ -230,8 +390,11 @@ exports.create = async (req,res) => {
             todo_id: assignment._id
         }
 
-        const user = await Users.findById(user_id);
-        user.notification.push(notificationSchema);
+        for(let i = 0; i < class_data.student_id.length; i++) {
+            const user = await Users.findById(class_data.student_id[i]);
+            user.notification.push(notificationSchema);
+            await Users.findByIdAndUpdate(class_data.student_id[i], user);
+        }
 
         const resultSchema = {
             assignment_id: assignment._id,
@@ -241,7 +404,6 @@ exports.create = async (req,res) => {
         }
         
         await AssignmentResults.create(resultSchema);
-        await Users.findByIdAndUpdate(user_id, user);
         await Classes.findOneAndUpdate({class_code: classcode}, class_data);
         res.status(200).json({result: 'OK', message: 'success create assignment'});
     } catch (e) {
@@ -261,23 +423,30 @@ exports.delete = async (req,res) => {
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
 
-        if (!class_data.class_assignment_id.includes(assignment_id)) res.status(404).json({result: 'Not found', message: ''});
-        const assignment_data = await Posts.findById(assignment_id);
+        if (!class_data.class_assignment_id.includes(assignment_id)) return res.status(404).json({result: 'Not found', message: ''});
+        const assignment_data = await Assignments.findById(assignment_id);
         if (!assignment_data) return res.status(404).json({result: 'Not found', message: ''});
 
         const assignment_index = class_data.class_assignment_id.indexOf(assignment_id);
         class_data.class_assignment_id.splice(assignment_index,1);
 
-        const user = await Users.findById(user_id);
-        const user_assignment_index = user.notification.map( (key,index) => {
-            if (key.todo_id == assignment_id && key.class_code == classcode) return index
-        });
+        for(let i = 0; i < class_data.student_id.length; i++) {
+            const user = await Users.findById(class_data.student_id[i]);
+            var user_assignment_index = -1
 
-        user.notification.splice(user_assignment_index,1);
+            for(let j = 0; j < user.notification.length; j++) {
+                if (user.notification[j].todo_id === assignment_id && user.notification[j].class_code === classcode) {
+                    user_assignment_index = j
+                }
+            }
+
+            user.notification.splice(user_assignment_index,1);
+            await Users.findByIdAndUpdate(class_data.student_id[i], user);
+        }
 
         await Assignments.findByIdAndDelete(assignment_id);
+        await AssignmentResults.findOneAndDelete({ assignment_id : assignment_id});
         await Classes.findOneAndUpdate({class_code: classcode}, class_data);
-        await Users.findByIdAndUpdate(user_id, user);
         res.status(200).json({result: 'OK', message: 'success delete assignment'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
@@ -297,17 +466,22 @@ exports.stdSubmit = async (req,res) => {
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
 
-        if (!class_data.class_assignment_id.includes(assignment_id)) res.status(404).json({result: 'Not found', message: ''});
-        const assignment_data = await Posts.findById(assignment_id);
+        if (!class_data.class_assignment_id.includes(assignment_id)) return res.status(404).json({result: 'Not found', message: ''});
+        const assignment_data = await Assignments.findById(assignment_id);
         if (!assignment_data) return res.status(404).json({result: 'Not found', message: ''});
 
         const now = moment();
-        const end = moment(assignment_data.exam_end_date);
-        if (now.isAfter(end) && assignment_data.turnin_late) return res.status(200).json({result: 'nOK', message: 'You cannot turn in late in this assignment'});
+        const end = moment(assignment_data.assignment_end_date);
+        if (now.isAfter(end) && !assignment_data.turnin_late) return res.status(200).json({result: 'nOK', message: 'You cannot turn in late in this assignment'});
 
         const isLate = now.isAfter(end);
 
         const assignmentResultData = await AssignmentResults.findOne({ assignment_id: assignment_id });
+
+        //Cannot submit twice
+        for(let i = 0; i < assignmentResultData.student_result.length; i++){
+            if(assignmentResultData.student_result[i].student_id === user_id) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        }
 
         const resultSchema = {
             student_id: user_id,
@@ -319,10 +493,14 @@ exports.stdSubmit = async (req,res) => {
         assignmentResultData.student_result.push(resultSchema);
         await AssignmentResults.findByIdAndUpdate(assignmentResultData._id, assignmentResultData);
 
+
         const user = await Users.findById(user_id);
-        const user_assignment_index = user.notification.map( (key,index) => {
-            if (key.todo_id == assignment_id && key.class_code == classcode) return index
-        });
+        var user_assignment_index = -1
+        for(let i = 0; i < user.notification.length; i++) {
+            if (user.notification[i].todo_id === assignment_id && user.notification[i].class_code === classcode) {
+                user_assignment_index = i
+            }
+        }
 
         user.notification.splice(user_assignment_index,1);
         await Users.findByIdAndUpdate(user_id, user);
@@ -378,7 +556,7 @@ exports.scoreSubmit = async (req,res) => {
 exports.comment = async (req,res) => {
     const user_id = req.userId;
     const classcode = req.body.class_code;
-    const assignment_id = req.body.post_id;
+    const assignment_id = req.body.assignment_id;
     const comment_data = req.body.data;
     if (!classcode||!assignment_id||!comment_data) return res.status(400).json({result: 'Bad request', message: ''});
 
@@ -390,9 +568,9 @@ exports.comment = async (req,res) => {
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
 
-        if (!class_data.class_assignment_id.includes(assignment_id)) res.status(404).json({result: 'Not found', message: ''});
+        if (!class_data.class_assignment_id.includes(assignment_id)) return res.status(404).json({result: 'Not found', message: ''});
         const assignment_data = await Assignments.findById(assignment_id);
-        if (!assignment_data) res.status(404).json({result: 'Not found', message: ''});
+        if (!assignment_data) return res.status(404).json({result: 'Not found', message: ''});
 
         const Comment = require('../models/comment_model');
         Comment.comment_author_id = user_id;
@@ -410,7 +588,7 @@ exports.comment = async (req,res) => {
 exports.deleteComment = async (req,res) => {
     const user_id = req.userId;
     const classcode = req.body.class_code;
-    const assignment_id = req.body.post_id;
+    const assignment_id = req.body.assignment_id;
     const comment_index = req.body.comment_index;
     if (!classcode||!assignment_id||!comment_index) return res.status(400).json({result: 'Bad request', message: ''});
 
@@ -420,15 +598,15 @@ exports.deleteComment = async (req,res) => {
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
 
-        if (!class_data.class_assignment_id.includes(assignment_id)) res.status(404).json({result: 'Not found', message: ''});
-        const assignment_data = await Posts.findById(assignment_id);
-        if (!assignment_data) res.status(404).json({result: 'Not found', message: ''});
+        if (!class_data.class_assignment_id.includes(assignment_id)) return res.status(404).json({result: 'Not found', message: ''});
+        const assignment_data = await Assignments.findById(assignment_id);
+        if (!assignment_data) return res.status(404).json({result: 'Not found', message: ''});
 
         if (assignment_data.comment[comment_index].comment_author_id != user_id) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
 
         assignment_data.comment.splice(comment_index,1);
 
-        await Assignments.findByIdAndUpdate(post_id, post_data);
+        await Assignments.findByIdAndUpdate(assignment_id, assignment_data);
         res.status(200).json({result: 'OK', message: 'success delete comment'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

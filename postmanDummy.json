@@ -181,8 +181,47 @@
     "comment_index": "2"
 }
 
+//Assignment create
+{   
+    "class_code": "oana5uZDKz",
+    "data": {
+        "assignment_name": "Second assignment",
+        "assignment_description": "nothing to do jaa",
+        "turnin_late": true,
+        "score": "5",
+        "assignment_optional_file": [],
+        "assignment_end_date": "2021-11-20T00:00:01.765+00:00"
+    }
+}
+
+//Assignment submit
+{   
+    "class_code": "oana5uZDKz",
+    "assignment_id": "618ef948b6689253db10b561",
+    "data": {
+        "file_result": [],
+        "answer_result": "Should Correct"
+    }
+}
+
+//Assginment score by teacher
+{   
+    "class_code": "oana5uZDKz",
+    "assignment_id": "618ef948b6689253db10b561",
+    "data": [
+        {
+            "student_id": "615615edc50dfddae86bd538",
+            "score": 3
+        }
+    ]
+}
+
+
 -> TEACHER
-Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNTRlZTM2NzA2YTMzZWVmNDM0ODhjYiIsImlhdCI6MTYzNjU1NTEyNywiZXhwIjoxNjM2NjQxNTI3LCJhdWQiOiJodHRwOi8vMTI3LjAuMC4xOjgwODAiLCJpc3MiOiJDb3NjaSIsInN1YiI6InBoYWtraGFyYWNoYXRlLmpvbkBnbWFpbC5jb20ifQ.cjPQM5D9m5GfAxn33zFAfDcT71ghbZKLpltXvf6vgbzZr7-Bu86D_xFoQNyS2I219ZCZ5gdAI3O4lDmjsaPedtnwDKJAQBNU-Wlup_J_JB7QGDx3Z0CaPgxHRfMVKIlgTjqStV5s-bb-sxALorlA2Me_PW_UVoh4TaqzyArUOzw
+Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNTRlZTM2NzA2YTMzZWVmNDM0ODhjYiIsImlhdCI6MTYzNjc1NzQ0NiwiZXhwIjoxNjM2ODQzODQ2LCJhdWQiOiJodHRwOi8vMTI3LjAuMC4xOjgwODAiLCJpc3MiOiJDb3NjaSIsInN1YiI6InBoYWtraGFyYWNoYXRlLmpvbkBnbWFpbC5jb20ifQ.V97NGgMhCumrBuFT5JBvRpXenuF_6Q2K_91WzJjepsX6vpRv0uTFRvPqB1qeBZflV-sFgaUTuJcabn254Hb1mZvDeHR2qNrdFnDn-laYKEQyDe0uUFD0o8kLLsim0ubxQjJv_nuimemiSeCLoezlP_9y606sFzZz8f3wWfAJpG4
 
 -> STUDENT
-Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNTYxNWVkYzUwZGZkZGFlODZiZDUzOCIsImlhdCI6MTYzNjQxNTMxNSwiZXhwIjoxNjM2NTAxNzE1LCJhdWQiOiJodHRwOi8vMTI3LjAuMC4xOjgwODAiLCJpc3MiOiJDb3NjaSIsInN1YiI6InBoYWtraGFyYWNoYXRlLmpvbkBnbWFpbC5jb20ifQ.beM9E16AQVjjo2CeL-9PbKmOLuPRxYr0F8ZKN50WMuQznFd25fondMHY1GJiBdhKBjP6HuI1BjzdcXd5l_HUTwTk7nZnCcH5lFV1y7aWp0sV_h4lxAUUquQAv-ucNrucYeVZXXoB40_91Ycqz7ixT8tcPiFjiZUtUhL9aRynXSs
+Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNTYxNWVkYzUwZGZkZGFlODZiZDUzOCIsImlhdCI6MTYzNjc2MDUwOSwiZXhwIjoxNjM2ODQ2OTA5LCJhdWQiOiJodHRwOi8vMTI3LjAuMC4xOjgwODAiLCJpc3MiOiJDb3NjaSIsInN1YiI6InBoYWtraGFyYWNoYXRlLmpvbkBnbWFpbC5jb20ifQ.bI1Zq9q01b8InNrW2FKGh9NbDspbZogygJobL5H0O9upNAF0D9p_QqpuW1kYCzXtOMr4mKyKGHuvKDw9ctKsmK47TlkrC5Es9HpUll_u6X__CDxjPiDfOGWkpsb1wP_SyGfdldZokDmhpFSEAI1wOgNg1HPYcci4KbwqI0lAoj4
+
+-> STUDENT2
+Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxOGYwMjdhMGEyZTIzYmE4NmEyMzY3YSIsImlhdCI6MTYzNjc2MjI1OSwiZXhwIjoxNjM2ODQ4NjU5LCJhdWQiOiJodHRwOi8vMTI3LjAuMC4xOjgwODAiLCJpc3MiOiJDb3NjaSIsInN1YiI6InBoYWtraGFyYWNoYXRlLmpvbkBnbWFpbC5jb20ifQ.NuST4z7py_JYB4a6zLb3s3zTa1xCBdWK16fEwE72nsuHNwr6qwbnFjuR_d10QSkdytrIpPfMLVracYdqC4Va8xAacAJs8Qz-uERfizCIOihHOWHq65-mju-gPj3Ke1GhJaxjOIUT66x0UclfTFnb3kANCI_oicwHgizuueGUvW8

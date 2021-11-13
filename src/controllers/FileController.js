@@ -86,7 +86,7 @@ exports.download = async (req,res) => {
         const data = await Files.findById(file_id);
         if(!data) return res.status(404).json({result: 'Not found', message: ''});
         //can verify user_id with author_id
-
+        
         res.download(`${data.file_path}` , data.file_name);
     } catch(e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

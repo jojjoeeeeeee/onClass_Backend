@@ -8,7 +8,7 @@ const FileController = require('../controllers/FileController');
 router.post('/upload', jwt.verify, FileController.upload);
 router.post('/upload/img', jwt.verify, FileController.uploadImage);
 
-router.get('/download/:file_id', jwt.verify, FileController.download);
+router.get('/download/:file_id', FileController.download);
 
 
 module.exports = router;

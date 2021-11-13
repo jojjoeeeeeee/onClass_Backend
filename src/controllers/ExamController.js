@@ -8,6 +8,8 @@ const { arraysEqual } = require('../services/function');
 
 const moment = require('moment');
 
+const exam_status = ['ยังไม่ถึงช่วงสอบ','อยู่ในช่วงสอบ','ผ่านช่วงสอบไปแล้ว']
+
 exports.get = async (req,res) => {
 
     const user_id = req.userId;
@@ -52,6 +54,7 @@ exports.get = async (req,res) => {
                         image: value.image,
                         choice: value.choice
                     }
+                    //ถ้าช้อยสามารถดึงข้อมูลจากในไฟล์ได้แสดงว่า ช้อยเป็นรูป
                     item.push(q_details)
                 })
                 const details = {
@@ -192,6 +195,93 @@ exports.get = async (req,res) => {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }
     
+};
+
+exports.getAll = async (req,res) => {
+    const user_id = req.userId;
+    const classcode = req.body.class_code;
+    if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
+
+    try {
+        const class_data = await Classes.findOne({ class_code: classcode });
+        if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'You not in this class'});
+
+        const exam_data = []
+        if (class_data.student_id.includes(user_id)) {
+            for(let i = 0; i < class_data.class_exam_id.length; i++) {
+                const query = await Exams.findById(class_data.class_exam_id[i]);
+                var sum_score = 0
+
+                for(let j = 0; j < query.part_list.length; j ++){
+
+                    sum_score += Number(query.part_list[j].score);
+                }
+
+
+                //Exam period validate
+
+                var status = ''
+
+                const now = moment();
+                const start = moment(query.exam_start_date);
+                const end = moment(query.exam_end_date);
+
+                if (now.isBefore(end) && now.isAfter(start)) {
+                    status = exam_status[1]
+                }
+                else if (now.isBefore(start)) {
+                    status = exam_status[0]
+                }
+                else if (now.isAfter(end)) {
+                    status = exam_status[2]
+                }
+
+                const details = {
+                    id: query._id,
+                    exam_name: query.exam_name,
+                    exam_description: query.exam_description,
+                    score: sum_score,
+                    exam_start_date: query.exam_start_date,
+                    exam_end_date: query.exam_end_date,
+                    created: moment(query.created),
+                    status: status
+                }
+               
+                exam_data.push(details);
+            }
+            const sorted_feed_data = exam_data.sort((a, b) => a.created.valueOf() - b.created.valueOf())
+            res.status(200).json({result: 'OK', message: '', data: exam_data.reverse()});
+        }
+        else {
+            for(let i = 0 ; i < class_data.class_exam_id.length ; i++) {
+                const query = await Exams.findById(class_data.class_exam_id[i]);
+
+                //Submit Amount Validate
+                const examResultData = await ExamResults.findOne({ exam_id : query._id});
+                const student_submit_amont = examResultData.student_result.length/query.part_list.length;
+                const student_amount = class_data.student_id.length;
+                const status = `${student_submit_amont}/${student_amount}`
+    
+                const details = {
+                    id: query._id,
+                    exam_name: query.exam_name,
+                    exam_description: query.exam_description,
+                    score: query.score,
+                    exam_start_date: query.exam_start_date,
+                    exam_end_date: query.exam_end_date,
+                    created: moment(query.created),
+                    status: status
+                }
+
+                exam_data.push(details);
+            }
+            const sorted_feed_data = exam_data.sort((a, b) => a.created.valueOf() - b.created.valueOf())
+            res.status(200).json({result: 'OK', message: '', data: exam_data.reverse()});
+        }
+    } catch (e) {
+        res.status(500).json({result: 'Internal Server Error', message: ''});
+    }
 };
 
 exports.stdSubmit = async (req,res) => {

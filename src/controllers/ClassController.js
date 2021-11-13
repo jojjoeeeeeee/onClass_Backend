@@ -8,6 +8,8 @@ const Files = require('../models/file_schema');
 const { generateClasscode } = require('../services/function');
 const { classValidation, classNicknameValidation } = require('../services/validation');
 
+const moment = require('moment');
+
 exports.getAll = async (req,res) => {
     const user_id = req.userId;
 
@@ -130,7 +132,8 @@ exports.get = async (req,res) => {
                 assignment_optional_file: file_arr,
                 comment: query.comment.length,
                 assignment_start_date: query.assignment_start_date,
-                assignment_end_date: query.assignment_end_date
+                assignment_end_date: query.assignment_end_date,
+                moment_sort: moment(query.created)
             }
             assignment_data.push(details);
         }
@@ -161,7 +164,8 @@ exports.get = async (req,res) => {
                 post_optional_file: file_arr,
                 poll: query.poll,
                 comment: query.comment.length,
-                created: query.created
+                created: query.created,
+                moment_sort: moment(query.created)
             }
 
             const profile_pic = await Files.findById(user_query.profile_pic);
@@ -174,6 +178,25 @@ exports.get = async (req,res) => {
             })
             post_data.push(details);
         }
+       
+
+        const feed_data = []
+        for (let i = 0 ; i < assignment_data.length ; i++) {
+            const feed_details = {
+                type: 'assignment',
+                data: assignment_data[i]
+            }
+            feed_data.push(feed_details)
+        }
+        for (let i = 0 ; i < post_data.length ; i++) {
+            const feed_details = {
+                type: 'post',
+                data: post_data[i]
+            }
+            feed_data.push(feed_details)
+        }
+
+        const sorted_feed_data = feed_data.sort((a, b) => a.data.moment_sort.valueOf() - b.data.moment_sort.valueOf())
 
         const exam_data = []
         for(let i = 0 ; i < data.class_exam_id.length ; i++) {
@@ -199,9 +222,10 @@ exports.get = async (req,res) => {
             class_thumbnail: '',
             teacher: teacher_data,
             student: student_data,
-            class_assignment_id: assignment_data,
+            class_assignment: assignment_data,
             class_post: post_data,
             class_exam: exam_data,
+            class_feed: sorted_feed_data.reverse(),
             nickname: data.nickname
         }
 
@@ -356,19 +380,29 @@ exports.join = async (req,res) => {
         new_data.student_id = student_id;
 
         const data = await Classes.findOneAndUpdate({ class_code: classcode }, new_data);
+        
 
         const query_user = await Users.findById(user_id);
-        var user_class = query_user.class
+        
         const form = {
             role: "student",
             class_code: classcode
         }
-        user_class.push(form)
+        query_user.class.push(form)
 
-        const new_data_user = query_user;
-        new_data_user.class = user_class;
+        for(let i = 0 ; i < data.class_assignment_id.length; i++) {
+            const assignment_id = data.class_assignment_id[i];
+            const assignment_data = await Assignments.findById(assignment_id);
+            const notificationSchema = {
+                class_code: classcode,
+                type: 'assignment',
+                message: `You're not turn in ${assignment_data.assignment_name}`,
+                todo_id: assignment_id
+            }
+            query_user.notification.push(notificationSchema);
+        }
         
-        const data_user = await Users.findByIdAndUpdate(user_id, new_data_user);
+        const data_user = await Users.findByIdAndUpdate(user_id, query_user);
         res.status(200).json({result: 'OK', message: 'success join class'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

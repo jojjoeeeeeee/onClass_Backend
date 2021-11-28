@@ -186,7 +186,7 @@ exports.get = async (req,res) => {
 
             const assignmentResultData = await AssignmentResults.findOne({ assignment_id : assignment_id});
 
-            assignmentResultData.student_result.map(key => {
+            assignmentResultData.student_result.map( async key => {
                 const result_file_arr = []
                 for (let i = 0 ; i < key.file_result.length ; i++) {
                     const result_file_data = await Files.findById(key.file_result[i]);

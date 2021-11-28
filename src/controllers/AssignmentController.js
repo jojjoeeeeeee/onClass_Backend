@@ -170,6 +170,7 @@ exports.get = async (req,res) => {
                 file_arr.push(file_obj)
             }
 
+            const student_result = []
             const res_assignment_data = {
                 id:assignment_data._id,
                 assignment_name: assignment_data.assignment_name,
@@ -178,9 +179,34 @@ exports.get = async (req,res) => {
                 assignment_optional_file: file_arr,
                 assignment_start_date: assignment_data.assignment_start_date,
                 assignment_end_date: assignment_data.assignment_end_date,
+                assignment_student_result: student_result,
                 comment: [],
                 role: 'teacher'
             }
+
+            const assignmentResultData = await AssignmentResults.findOne({ assignment_id : assignment_id});
+
+            assignmentResultData.student_result.map(key => {
+                const result_file_arr = []
+                for (let i = 0 ; i < key.file_result.length ; i++) {
+                    const result_file_data = await Files.findById(key.file_result[i]);
+                    if(!result_file_data) return res.status(404).json({result: 'Not found', message: ''});
+                    const result_file_obj = {
+                        file_name: result_file_data.file_name,
+                        file_extension: result_file_data.filename_extension,
+                        file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/file/download/${file_data._id}`
+                    }
+                    result_file_arr.push(result_file_obj)
+                }
+
+                const std_submitResult = {
+                    student_id: key.student_id,
+                    file_result: result_file_arr,
+                    answer_result: key.answer_result,
+                    isLate: key.isLate
+                }
+                student_result.push(std_submitResult)
+            });
 
             const assignmentComment = []
             for (let i = 0 ; i < assignment_data.comment.length ; i++) {
@@ -271,7 +297,7 @@ exports.getAll = async (req,res) => {
                 assignment_data.push(details);
             }
             const sorted_feed_data = assignment_data.sort((a, b) => a.created.valueOf() - b.created.valueOf())
-            res.status(200).json({result: 'OK', message: '', data: assignment_data.reverse()});
+            res.status(200).json({result: 'OK', message: '', data: sorted_feed_data.reverse()});
         }
         else {
             for(let i = 0 ; i < class_data.class_assignment_id.length ; i++) {
@@ -297,7 +323,7 @@ exports.getAll = async (req,res) => {
                 assignment_data.push(details);
             }
             const sorted_feed_data = assignment_data.sort((a, b) => a.created.valueOf() - b.created.valueOf())
-            res.status(200).json({result: 'OK', message: '', data: assignment_data.reverse()});
+            res.status(200).json({result: 'OK', message: '', data: sorted_feed_data.reverse()});
         }
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

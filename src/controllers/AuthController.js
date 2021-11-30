@@ -64,7 +64,7 @@ exports.login = async (req,res) => {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }
 };
-
+//เอา isAuth มาเช็คใน header ทุกหน้า
 exports.isAuth = async (req,res) => {
     const user_id = req.userId;
     try {
@@ -73,12 +73,13 @@ exports.isAuth = async (req,res) => {
             username: data.username,
             email: data.email,
             profile_pic: '',
-            name: data.name
+            name: data.name,
+            class: data.class
         }
         const profile_pic = await Files.findById(data.profile_pic);
         userSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
 
-        res.status(200).json({ result: 'OK', message: 'success token provided', data: userSchema });
+        res.status(200).json({ result: 'OK', message: 'success token provided', data: [userSchema] });
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }

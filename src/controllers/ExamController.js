@@ -148,7 +148,7 @@ exports.get = async (req,res) => {
 
             const res_exam_data = {
                 id:exam_data._id,
-                optional_setting: exam_data.optional_setting,
+                optional_setting: [exam_data.optional_setting],
                 exam_name: exam_data.exam_name,
                 exam_description: exam_data.exam_description,
                 author: exam_data.author,
@@ -158,7 +158,7 @@ exports.get = async (req,res) => {
                 exam_end_date: exam_data.exam_end_date
             }
 
-            res.status(200).json({result: 'OK', message: '', data: res_exam_data});
+            res.status(200).json({result: 'OK', message: '', data: [res_exam_data]});
         }
         else {
 
@@ -180,7 +180,7 @@ exports.get = async (req,res) => {
 
             const res_exam_data = {
                 id:exam_data._id,
-                optional_setting: exam_data.optional_setting,
+                optional_setting: [exam_data.optional_setting],
                 exam_name: exam_data.exam_name,
                 exam_description: exam_data.exam_description,
                 author: exam_data.author,
@@ -189,7 +189,7 @@ exports.get = async (req,res) => {
                 exam_start_date: exam_data.exam_start_date,
                 exam_end_date: exam_data.exam_end_date
             }
-            res.status(200).json({result: 'OK', message: '', data: res_exam_data});
+            res.status(200).json({result: 'OK', message: '', data: [res_exam_data]});
         }
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
@@ -251,7 +251,7 @@ exports.getAll = async (req,res) => {
                 exam_data.push(details);
             }
             const sorted_feed_data = exam_data.sort((a, b) => a.created.valueOf() - b.created.valueOf())
-            res.status(200).json({result: 'OK', message: '', data: exam_data.reverse()});
+            res.status(200).json({result: 'OK', message: '', data: sorted_feed_data.reverse()});
         }
         else {
             for(let i = 0 ; i < class_data.class_exam_id.length ; i++) {
@@ -277,7 +277,7 @@ exports.getAll = async (req,res) => {
                 exam_data.push(details);
             }
             const sorted_feed_data = exam_data.sort((a, b) => a.created.valueOf() - b.created.valueOf())
-            res.status(200).json({result: 'OK', message: '', data: exam_data.reverse()});
+            res.status(200).json({result: 'OK', message: '', data: sorted_feed_data.reverse()});
         }
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
@@ -479,14 +479,14 @@ exports.getResultForTeacher = async (req,res) => {
             const std_result_res_arr = []
             new_exam_result_data.student_result.map(key => {
                 const std_result = {
-                    name: {},
+                    name: [{}],
                     part_id: "",
                     part_type: "",
                     answer: []
                 }
                 class_data.nickname.map(nickKey => {
                     if (nickKey.user_id == key.student_id) {
-                        std_result.name = nickKey;
+                        std_result.name = [nickKey];
                     }
                 })
                 std_result.part_id = key.part_id;
@@ -499,7 +499,7 @@ exports.getResultForTeacher = async (req,res) => {
             const std_score_res_arr = []
             new_exam_result_data.student_score.map(key => {
                 const std_score = {
-                    name: {},
+                    name: [{}],
                     part_id: "",
                     part_type: "",
                     part_score: [],
@@ -507,7 +507,7 @@ exports.getResultForTeacher = async (req,res) => {
                 }
                 class_data.nickname.map(nickKey => {
                     if (nickKey.user_id == key.student_id) {
-                        std_score.name = nickKey;
+                        std_score.name = [nickKey];
                     }
                 });
                 std_score.part_id = key.part_id;
@@ -524,7 +524,7 @@ exports.getResultForTeacher = async (req,res) => {
                 student_result: std_result_res_arr,
                 student_score: std_score_res_arr
             }
-            res.status(200).json({result: 'OK', message: '', data: resObj});
+            res.status(200).json({result: 'OK', message: '', data: [resObj]});
         }) 
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

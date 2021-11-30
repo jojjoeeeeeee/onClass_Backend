@@ -81,7 +81,7 @@ exports.get = async (req,res) => {
 
         postSchema.comment = postComment;
 
-        res.status(200).json({result: 'OK', message: '', data: postSchema});
+        res.status(200).json({result: 'OK', message: '', data: [postSchema]});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }

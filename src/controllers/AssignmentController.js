@@ -150,7 +150,7 @@ exports.get = async (req,res) => {
 
             res_assignment_data.comment = assignmentComment;
 
-            res.status(200).json({result: 'OK', message: '', data: res_assignment_data});
+            res.status(200).json({result: 'OK', message: '', data: [res_assignment_data]});
         }
         else {
             //File download path
@@ -186,7 +186,7 @@ exports.get = async (req,res) => {
 
             const assignmentResultData = await AssignmentResults.findOne({ assignment_id : assignment_id});
 
-            assignmentResultData.student_result.map( async key => {
+            assignmentResultData.student_result.map(async key => {
                 const result_file_arr = []
                 for (let i = 0 ; i < key.file_result.length ; i++) {
                     const result_file_data = await Files.findById(key.file_result[i]);
@@ -230,7 +230,7 @@ exports.get = async (req,res) => {
             }
 
             res_assignment_data.comment = assignmentComment;
-            res.status(200).json({result: 'OK', message: '', data: res_assignment_data});
+            res.status(200).json({result: 'OK', message: '', data: [res_assignment_data]});
         }
         
     } catch (e) {

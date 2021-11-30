@@ -157,7 +157,7 @@ exports.get = async (req,res) => {
 
             const details = {
                 id: query._id,
-                post_author: {},
+                post_author: [{}],
                 profile_pic: '',
                 type: query.type,
                 post_content: query.post_content,
@@ -173,7 +173,7 @@ exports.get = async (req,res) => {
 
             data.nickname.map(nickKey => {
                 if (nickKey.user_id == query.post_author_id) {
-                    details.post_author = nickKey;
+                    details.post_author = [nickKey];
                 }
             })
             post_data.push(details);
@@ -232,7 +232,7 @@ exports.get = async (req,res) => {
         const thumbnail = await Files.findById(data.class_thumbnail);
         res_data.class_thumbnail = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${thumbnail.file_path}`
 
-        res.status(200).json({result: 'OK', message: '', data: res_data});
+        res.status(200).json({result: 'OK', message: '', data: [res_data]});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }
@@ -269,7 +269,7 @@ exports.create = async (req,res) => {
         new_data_user.class = user_class;
 
         const data_user = await Users.findByIdAndUpdate(user_id, new_data_user);
-        res.status(200).json({result: 'OK', message: 'success create class'});
+        res.status(200).json({result: 'OK', message: 'success create class', data: classcode});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }

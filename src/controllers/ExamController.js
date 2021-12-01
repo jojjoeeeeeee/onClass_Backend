@@ -256,7 +256,12 @@ exports.getAll = async (req,res) => {
         else {
             for(let i = 0 ; i < class_data.class_exam_id.length ; i++) {
                 const query = await Exams.findById(class_data.class_exam_id[i]);
+                var sum_score = 0
 
+                for(let j = 0; j < query.part_list.length; j ++){
+
+                    sum_score += Number(query.part_list[j].score);
+                }
                 //Submit Amount Validate
                 const examResultData = await ExamResults.findOne({ exam_id : query._id});
                 const student_submit_amont = examResultData.student_result.length/query.part_list.length;
@@ -267,7 +272,7 @@ exports.getAll = async (req,res) => {
                     id: query._id,
                     exam_name: query.exam_name,
                     exam_description: query.exam_description,
-                    score: query.score,
+                    score: sum_score,
                     exam_start_date: query.exam_start_date,
                     exam_end_date: query.exam_end_date,
                     created: moment(query.created),
@@ -305,7 +310,6 @@ exports.stdSubmit = async (req,res) => {
         if (!class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
         
         if (!class_data.class_exam_id.includes(exam_id)) return res.status(404).json({result: 'Not found', message: ''});
-
         const exam_data = await Exams.findById(exam_id);
         if (!exam_data) return res.status(404).json({result: 'Not found', message: ''});
 
@@ -336,7 +340,7 @@ exports.stdSubmit = async (req,res) => {
             stdResultData.student_result.push(resultSchema);
         });
         const stdResultSaveData = await ExamResults.findOneAndUpdate({ exam_id: exam_id}, stdResultData);
-        res.status(200).json({result: 'OK', message: 'success sumbit exam result'});
+        res.status(200).json({result: 'OK', message: 'success submit exam result'});
 
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

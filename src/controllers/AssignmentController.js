@@ -2,6 +2,7 @@ const Users = require('../models/user_schema');
 const Classes = require('../models/class_schema');
 const Assignments = require('../models/assignment/assignment_schema');
 const AssignmentResults = require('../models/assignment/assignment_result_schema');
+const Files = require('../models/file_schema');
 
 const moment = require('moment');
 
@@ -47,7 +48,7 @@ exports.get = async (req,res) => {
                 const file_obj = {
                     file_name: file_data.file_name,
                     file_extension: file_data.filename_extension,
-                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/file/download/${file_data._id}`
+                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/api/file/download/${file_data._id}`
                 }
                 file_arr.push(file_obj)
             }
@@ -60,7 +61,6 @@ exports.get = async (req,res) => {
             });
             //if already submit cant re submit
             can_submit = !already
-
 
             const std_submitResult = {
                 file_result: [],
@@ -80,15 +80,17 @@ exports.get = async (req,res) => {
 
                 const std_file_arr = []
                 for(let i = 0; i < std_file_id.length; i++){
+
                     const std_file_data = await Files.findById(std_file_id[i]);
                     if(!std_file_data) return res.status(404).json({result: 'Not found', message: ''});
                     const std_file_obj = {
                         file_name: std_file_data.file_name,
                         file_extension: std_file_data.filename_extension,
-                        file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/file/download/${std_file_data._id}`
+                        file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/api/file/download/${std_file_data._id}`
                     }
                     std_file_arr.push(std_file_obj)
                 }
+
 
                 std_submitResult.file_result = std_file_arr;
                 std_submitResult.answer_result = assignmentResultData.student_result[std_result_index].answer_result;
@@ -165,7 +167,7 @@ exports.get = async (req,res) => {
                 const file_obj = {
                     file_name: file_data.file_name,
                     file_extension: file_data.filename_extension,
-                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/file/download/${file_data._id}`
+                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/api/file/download/${file_data._id}`
                 }
                 file_arr.push(file_obj)
             }
@@ -194,7 +196,7 @@ exports.get = async (req,res) => {
                     const result_file_obj = {
                         file_name: result_file_data.file_name,
                         file_extension: result_file_data.filename_extension,
-                        file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/file/download/${file_data._id}`
+                        file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/api/file/download/${result_file_data._id}`
                     }
                     result_file_arr.push(result_file_obj)
                 }
@@ -293,7 +295,7 @@ exports.getAll = async (req,res) => {
                     created: moment(query.created),
                     status: status
                 }
-
+                
                 assignment_data.push(details);
             }
             const sorted_feed_data = assignment_data.sort((a, b) => a.created.valueOf() - b.created.valueOf())
@@ -394,7 +396,7 @@ exports.create = async (req,res) => {
         const class_data = await Classes.findOne({ class_code: classcode })
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
-
+        console.log('TEST1',assignment_data);
         const assignmentSchema = {
             class_code: classcode,
             assignment_name: assignment_data.assignment_name,
@@ -405,6 +407,8 @@ exports.create = async (req,res) => {
             comment: [],
             assignment_end_date: assignment_data.assignment_end_date
         }
+
+        
 
         const assignment = await Assignments.create(assignmentSchema);
         class_data.class_assignment_id.push(assignment._id);
@@ -582,7 +586,7 @@ exports.scoreSubmit = async (req,res) => {
 exports.comment = async (req,res) => {
     const user_id = req.userId;
     const classcode = req.body.class_code;
-    const assignment_id = req.body.assignment_id;
+    const assignment_id = req.body.id;
     const comment_data = req.body.data;
     if (!classcode||!assignment_id||!comment_data) return res.status(400).json({result: 'Bad request', message: ''});
 

@@ -49,10 +49,8 @@ exports.getAll = async (req,res) => {
 
             const thumbnail = await Files.findById(data.class_thumbnail);
             class_details.class_thumbnail = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${thumbnail.file_path}`
-
             res_class_data.push(class_details);
         }
-
         res.status(200).json({result: 'OK', message: '', data: res_class_data});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
@@ -118,7 +116,7 @@ exports.get = async (req,res) => {
                 const file_obj = {
                     file_name: file_data.file_name,
                     file_extension: file_data.filename_extension,
-                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/file/download/${file_data._id}`
+                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/api/file/download/${file_data._id}`
                 }
                 file_arr.push(file_obj)
             }
@@ -150,7 +148,7 @@ exports.get = async (req,res) => {
                 const file_obj = {
                     file_name: file_data.file_name,
                     file_extension: file_data.filename_extension,
-                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/file/download/${file_data._id}`
+                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/api/file/download/${file_data._id}`
                 }
                 file_arr.push(file_obj)
             }

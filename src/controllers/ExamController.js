@@ -141,7 +141,7 @@ exports.get = async (req,res) => {
                 const file_obj = {
                     file_name: file_data.file_name,
                     file_extension: file_data.filename_extension,
-                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/file/download/${file_data._id}`
+                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/api/file/download/${file_data._id}`
                 }
                 file_arr.push(file_obj)
             }
@@ -173,7 +173,7 @@ exports.get = async (req,res) => {
                 const file_obj = {
                     file_name: file_data.file_name,
                     file_extension: file_data.filename_extension,
-                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/file/download/${file_data._id}`
+                    file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/api/file/download/${file_data._id}`
                 }
                 file_arr.push(file_obj)
             }

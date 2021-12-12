@@ -29,7 +29,7 @@ exports.get = async (req,res) => {
             const file_obj = {
                 file_name: file_data.file_name,
                 file_extension: file_data.filename_extension,
-                file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/file/download/${file_data._id}`
+                file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/api/file/download/${file_data._id}`
             }
             file_arr.push(file_obj)
         }
@@ -159,7 +159,7 @@ exports.deletePost = async (req,res) => {
 exports.comment = async (req,res) => {
     const user_id = req.userId;
     const classcode = req.body.class_code;
-    const post_id = req.body.post_id;
+    const post_id = req.body.id;
     const comment_data = req.body.data;
     if (!classcode||!post_id||!comment_data) return res.status(400).json({result: 'Bad request', message: ''});
 

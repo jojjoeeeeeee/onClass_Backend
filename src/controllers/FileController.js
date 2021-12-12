@@ -45,7 +45,16 @@ exports.upload = async (req,res) => {
         const data_id = data.map(key => {
             return key._id
         });
-        return res.status(200).json({result: 'OK', message: 'success upload file', data: data_id})
+
+        const data_name = data.map(key => {
+            return key.file_name
+        });
+
+        const file_schema = [{
+            id: data_id,
+            file_name: data_name
+        }]
+        return res.status(200).json({result: 'OK', message: 'success upload file', data: file_schema})
     });
 };
 
@@ -73,6 +82,7 @@ exports.uploadImage = async (req,res) => {
         const data_id = data.map(key => {
             return key._id
         });
+
         return res.status(200).json({result: 'OK', message: 'success upload image', data: data_id})
     });
 };

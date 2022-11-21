@@ -1,28 +1,28 @@
-import { CognitoJwtVerifier } from "aws-jwt-verify";
+const cognito = require("aws-jwt-verify");
+
+const CognitoJwtVerifier = cognito.CognitoJwtVerifier;
 
 //need config
 const verifier = CognitoJwtVerifier.create({
-  userPoolId: "<user_pool_id>",
+  userPoolId: `${process.env.AWS_COGNITO_USER_POOL_ID}`,
   tokenUse: "access",
-  clientId: "<client_id>",
+  clientId: `${process.env.AWS_COGNITO_CLIENT_ID}`,
 });
 
-module.exports = {
-  verify: async (req, res, next) => {
-    var token = req.headers.authorization
-      ? req.headers.authorization.split(" ")[1]
-      : null;
-    if (!token)
-      return res
-        .status(403)
-        .json({ auth: false, message: "No token provided." });
+const verify = async (req, res, next) => {
+  var token = req.headers.authorization
+    ? req.headers.authorization.split(" ")[1]
+    : null;
+  if (!token)
+    return res.status(403).json({ auth: false, message: "No token provided." });
 
-    try {
-      const payload = await verifier.verify(token);
-      req.userEmail = payload.email
-      next();
-    } catch {
-      return res.status(401).json({ auth: false, message: "Token is invalid" });
-    }
-  },
+  try {
+    const payload = await verifier.verify(token);
+    req.userEmail = payload.email;
+    next();
+  } catch {
+    return res.status(401).json({ auth: false, message: "Token is invalid" });
+  }
 };
+
+exports.verify = verify;

@@ -1,5 +1,5 @@
-# CSC361_Classroom_Backend
-**SWU CSC361 Web Programming Project "Classroom" backend**
+# onClass_Backend
+**SWU THESIS Project "onClass" backend**
 
 _Final project COSCI Computer For Communicaton 2021 Classroom Website (API repository)_
 

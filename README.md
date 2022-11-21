@@ -1,7 +1,7 @@
 # onClass_Backend
 **SWU THESIS Project "onClass" backend**
 
-_Final project COSCI Computer For Communicaton 2021 Classroom Website (API repository)_
+_Final project COSCI Computer For Communicaton 2022 Classroom Website (API repository)_
 
 **Member :**
 |Name|Student Id|

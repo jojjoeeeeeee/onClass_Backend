@@ -1,5 +1,5 @@
 {
-  "name": "csc361_classroom",
+  "name": "onClass_Backend",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -8,22 +8,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jojjoeeeeeee/CSC361_Classroom_Backend.git"
+    "url": "git+https://github.com/jojjoeeeeeee/onClass_Backend.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jojjoeeeeeee/CSC361_Classroom_Backend/issues"
+    "url": "https://github.com/jojjoeeeeeee/onClass_Backend/issues"
   },
-  "homepage": "https://github.com/jojjoeeeeeee/CSC361_Classroom_Backend#readme",
+  "homepage": "https://github.com/jojjoeeeeeee/onClass_Backend#readme",
   "dependencies": {
     "@hapi/joi": "^17.1.1",
+    "aws-jwt-verify": "^3.2.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "formidable": "^1.2.2",
     "fs-extra": "^10.0.0",
     "generate-password": "^1.6.1",
     "helmet": "^4.6.0",
@@ -31,6 +31,6 @@
     "moment": "^2.29.1",
     "mongoose": "^6.0.8",
     "mongoose-sequence": "^5.3.1",
-    "multer": "^1.4.3"
+    "multer": "^1.4.5-lts.1"
   }
 }

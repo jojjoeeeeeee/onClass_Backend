@@ -66,8 +66,11 @@ exports.login = async (req,res) => {
 };
 //เอา isAuth มาเช็คใน header ทุกหน้า
 exports.isAuth = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const data = await Users.findById(user_id);
         const userSchema = {
             username: data.username,

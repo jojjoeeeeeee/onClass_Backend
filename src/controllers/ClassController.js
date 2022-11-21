@@ -11,15 +11,16 @@ const { classValidation, classNicknameValidation } = require('../services/valida
 const moment = require('moment');
 
 exports.getAll = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
 
     try {
-        const user = await Users.findById(user_id);
-        if (user.class.length == 0) return res.status(200).json({result: 'OK', message: 'No class', data: []});
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        if (users.class.length == 0) return res.status(200).json({result: 'OK', message: 'No class', data: []});
 
         const res_class_data = []
-        for(let i = 0 ; i < user.class.length ; i++) {
-            const data = await Classes.findOne({ class_code: user.class[i].class_code });
+        for(let i = 0 ; i < users.class.length ; i++) {
+            const data = await Classes.findOne({ class_code: users.class[i].class_code });
 
             const query_first_teacher = await Users.findById(data.teacher_id[0]);
             
@@ -58,12 +59,15 @@ exports.getAll = async (req,res) => {
 };
 
 exports.get = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
 
     const classcode = req.params.class_code;
     if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const data = await Classes.findOne({ class_code: classcode });
         if (!data) return res.status(404).json({result: 'Not found', message: ''});
         if (!data.teacher_id.includes(user_id) && !data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
@@ -237,7 +241,7 @@ exports.get = async (req,res) => {
 };
 
 exports.create = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
 
     const { error } = classValidation(req.body);
     if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
@@ -250,6 +254,9 @@ exports.create = async (req,res) => {
     }
     
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const teacher_id = [user_id];
         req.body.class_code = classcode;
         req.body.teacher_id = teacher_id;
@@ -275,7 +282,7 @@ exports.create = async (req,res) => {
 };
 
 exports.editDetails = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
     const classcode = req.body.class_code;
     if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
 
@@ -285,6 +292,9 @@ exports.editDetails = async (req,res) => {
     const data = req.body.data;
 
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const query = await Classes.findOne({ class_code: classcode })
         if (!query) return res.status(404).json({result: 'Not found', message: ''});
         if (!query.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
@@ -304,7 +314,7 @@ exports.editDetails = async (req,res) => {
 };
 
 exports.editRoles = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
     const classcode = req.body.class_code;
     const data = req.body.data;
 
@@ -312,6 +322,9 @@ exports.editRoles = async (req,res) => {
     if (!data.teacher_id||!data.student_id) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const query = await Classes.findOne({ class_code: classcode })
         if (!query) return res.status(404).json({result: 'Not found', message: ''});
         if (!query.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
@@ -362,11 +375,14 @@ exports.editRoles = async (req,res) => {
 };
 
 exports.join = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
     const classcode  = req.body.class_code;
     if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
     
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const query = await Classes.findOne({ class_code: classcode })
         if (!query) return res.status(404).json({result: 'Not found', message: ''});
         if (query.teacher_id.includes(user_id) || query.student_id.includes(user_id)) return res.status(200).json({result: 'nOK', message: 'failed you already joned'});
@@ -408,7 +424,7 @@ exports.join = async (req,res) => {
 };
 
 exports.nickname = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
 
     const { error } = classNicknameValidation(req.body);
     if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
@@ -416,6 +432,9 @@ exports.nickname = async (req,res) => {
     const classcode = req.body.class_code;
     
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const query = await Classes.findOne({ class_code: classcode })
         if (!query) return res.status(404).json({result: 'Not found', message: ''});
         if (!query.teacher_id.includes(user_id) && !query.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
@@ -451,12 +470,15 @@ exports.nickname = async (req,res) => {
 };
 
 exports.leave = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
 
     const classcode  = req.body.class_code;
     if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
     
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const query = await Classes.findOne({ class_code: classcode })
         if (!query) return res.status(404).json({result: 'Not found', message: ''});
         if (!query.teacher_id.includes(user_id) && !query.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});

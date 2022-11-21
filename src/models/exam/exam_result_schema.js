@@ -7,6 +7,9 @@ const result_schema = mongoose.Schema({
     answer: [[String]]
 }, { _id : false });
 
+
+//add mark score as custom emoji
+//emoji score range
 const score_schema = mongoose.Schema({
     student_id: String,
     part_id: String,

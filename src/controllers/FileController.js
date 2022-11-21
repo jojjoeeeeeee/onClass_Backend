@@ -88,7 +88,7 @@ exports.uploadImage = async (req,res) => {
 };
 
 exports.download = async (req,res) => {
-    // const user_id = req.userId;
+    // const user_email = req.userEmail;
     const file_id = req.params.file_id;
     if(!file_id) return res.status(400).json({result: 'Bad request', message: ''});
 

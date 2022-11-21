@@ -12,13 +12,16 @@ const exam_status = ['ยังไม่ถึงช่วงสอบ','อย�
 
 exports.get = async (req,res) => {
 
-    const user_id = req.userId;
+    const user_email = req.userEmail;
     const classcode = req.body.class_code;
     const exam_id = req.body.exam_id;
 
     if (!classcode||!exam_id) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'You not in this class'});
@@ -198,11 +201,14 @@ exports.get = async (req,res) => {
 };
 
 exports.getAll = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
     const classcode = req.body.class_code;
     if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'You not in this class'});
@@ -290,7 +296,7 @@ exports.getAll = async (req,res) => {
 };
 
 exports.stdSubmit = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
     const classcode = req.body.class_code;
     const exam_id = req.body.exam_id;
     const submitResult = req.body.data;
@@ -305,6 +311,9 @@ exports.stdSubmit = async (req,res) => {
     if (resultNotValid) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
@@ -349,7 +358,7 @@ exports.stdSubmit = async (req,res) => {
 };
 
 exports.scoreSubjective = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
     const classcode = req.body.class_code;
     const exam_id = req.body.exam_id;
     const score_data = req.body.data;
@@ -357,6 +366,9 @@ exports.scoreSubjective = async (req,res) => {
     if (!classcode||!exam_id||!score_data) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
@@ -404,13 +416,16 @@ exports.scoreSubjective = async (req,res) => {
 };
 
 exports.getResultForTeacher = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
     const classcode = req.body.class_code;
     const exam_id = req.body.exam_id;
 
     if (!classcode||!exam_id) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
@@ -536,7 +551,7 @@ exports.getResultForTeacher = async (req,res) => {
 };
 
 exports.create = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
     const classcode = req.body.class_code;
 
     //exam validation
@@ -546,6 +561,9 @@ exports.create = async (req,res) => {
     //part_list should have validation || this method just create empty teacher edit add choice then edit the model later
     
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
         if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
@@ -571,7 +589,7 @@ exports.create = async (req,res) => {
 };
 
 exports.edit = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
     const classcode = req.body.class_code;
 
     //exam validation
@@ -582,6 +600,9 @@ exports.edit = async (req,res) => {
     const exam_id = exam.id
 
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const exam_data = await Exams.findById(exam_id);
         if (!exam_data) return res.status(404).json({result: 'Not found', message: ''});
         if (exam_data.author != exam.author) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
@@ -631,12 +652,15 @@ exports.edit = async (req,res) => {
 
 exports.delete = async (req,res) => {
     //delete all exam model
-    const user_id = req.userId;
+    const user_email = req.userEmail;
     const exam_id = req.body.exam_id;
 
     if (!exam_id) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const exam_data = await Exams.findById(exam_id);
         if (!exam_data) return res.status(404).json({result: 'Not found', message: ''});
         if (exam_data.author != user_id) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
@@ -663,13 +687,16 @@ exports.delete = async (req,res) => {
 };
 
 exports.deleteResult = async (req,res) => {
-    const user_id = req.userId;
+    const user_email = req.userEmail;
     const classcode = req.body.class_code;
     const exam_id = req.body.exam_id;
 
     if (!exam_id) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
+        const users = await Users.findOne({ email: user_email })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
         const exam_data = await Exams.findById(exam_id);
         if (!exam_data) return res.status(404).json({result: 'Not found', message: ''});
 

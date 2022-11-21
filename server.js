@@ -6,7 +6,7 @@ const helmet = require('helmet');
 require('dotenv').config({ path: './src/.env' })
 
 app.use(helmet());
-
+const generator = require('generate-password');
 const corsOptions = {
   exposedHeaders: 'Authorization',
 };

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 mongoose
   .connect(`${process.env.DB_HOST}`, {
     auth : {
-      user: process.env.DB_AUTH_USER,
+      username: process.env.DB_AUTH_USER,
       password: process.env.DB_AUTH_PASSWORD
     }
   })

@@ -7,7 +7,7 @@ mongoose
       password: process.env.DB_AUTH_PASSWORD
     }
   })
-  .then(() => console.log('DB Connected!'));
+  .then(() => console.log('DB Connected!')).catch((e) => console.log(`mongoose error: ${e}`));
 
 mongoose.connection.on('connected', () => {
   console.log('Mongoose default connection open');

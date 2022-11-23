@@ -1,7 +1,12 @@
 const mongoose = require('mongoose');
 
 mongoose
-  .connect(`${process.env.DB_HOST}`, {useNewUrlParser: true})
+  .connect(`${process.env.DB_HOST}`, {
+    auth : {
+      user: process.env.DB_AUTH_USER,
+      password: process.env.DB_AUTH_PASSWORD
+    }
+  })
   .then(() => console.log('DB Connected!'));
 
 mongoose.connection.on('connected', () => {

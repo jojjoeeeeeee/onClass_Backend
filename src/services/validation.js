@@ -8,10 +8,6 @@ const registerValidation = (data) => {
         email: Joi.string()
                 .email()
                 .required(),
-        password: Joi.string()
-                .min(6)
-                .max(32)
-                .required(),
         optional_contact: Joi.string()
                 .allow('')
                 .required(),

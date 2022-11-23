@@ -5,6 +5,15 @@ const Files = require('../models/file_schema');
 
 const { loginValidation, registerValidation } = require('../services/validation');
 
+exports.test = async (req, res) => {
+    try {
+        const data = await Users.find();
+        res.status(200).json({result: 'OK', message: 'success create account', data: data});
+    } catch(e) {
+        res.status(500).json({result: 'Internal Server Error', message: ''});
+    }
+};
+
 exports.register = async (req,res) => {
     const { error } = registerValidation(req.body);
     if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
@@ -16,7 +25,6 @@ exports.register = async (req,res) => {
     if (emailExist) return res.status(200).json({result: 'nOK', message: 'Email already exists'});
 
     try {
-        req.body.password = await bcrypt.hash(req.body.password, 8);
         const data = await Users.create(req.body);
         res.status(200).json({result: 'OK', message: 'success create account'});
     } catch (e) {

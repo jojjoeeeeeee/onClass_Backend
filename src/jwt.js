@@ -14,14 +14,18 @@ const verify = async (req, res, next) => {
     ? req.headers.authorization.split(" ")[1]
     : null;
   if (!token)
-    return res.status(403).json({ auth: false, message: "No token provided." });
+    return res
+      .status(403)
+      .json({ result: "Not found", message: "No token provided.", data: {} });
 
   try {
     const payload = await verifier.verify(token);
     req.userEmail = payload.email;
     next();
   } catch {
-    return res.status(401).json({ auth: false, message: "Token is invalid" });
+    return res
+      .status(401)
+      .json({ result: "nOK", message: "Token is invalid", data: {} });
   }
 };
 

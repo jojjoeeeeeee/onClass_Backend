@@ -11,10 +11,10 @@ const { classValidation, classNicknameValidation } = require('../services/valida
 const moment = require('moment');
 
 exports.getAll = async (req,res) => {
-    const user_email = req.userEmail;
+    const username = req.username;
 
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         if (users.class.length == 0) return res.status(200).json({result: 'OK', message: 'No class', data: []});
 
@@ -59,13 +59,13 @@ exports.getAll = async (req,res) => {
 };
 
 exports.get = async (req,res) => {
-    const user_email = req.userEmail;
+    const username = req.username;
 
     const classcode = req.params.class_code;
     if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const data = await Classes.findOne({ class_code: classcode });
@@ -241,7 +241,7 @@ exports.get = async (req,res) => {
 };
 
 exports.create = async (req,res) => {
-    const user_email = req.userEmail;
+    const username = req.username;
 
     const { error } = classValidation(req.body);
     if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
@@ -254,7 +254,7 @@ exports.create = async (req,res) => {
     }
     
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const teacher_id = [user_id];
@@ -282,7 +282,7 @@ exports.create = async (req,res) => {
 };
 
 exports.editDetails = async (req,res) => {
-    const user_email = req.userEmail;
+    const username = req.username;
     const classcode = req.body.class_code;
     if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
 
@@ -292,7 +292,7 @@ exports.editDetails = async (req,res) => {
     const data = req.body.data;
 
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const query = await Classes.findOne({ class_code: classcode })
@@ -314,7 +314,7 @@ exports.editDetails = async (req,res) => {
 };
 
 exports.editRoles = async (req,res) => {
-    const user_email = req.userEmail;
+    const username = req.username;
     const classcode = req.body.class_code;
     const data = req.body.data;
 
@@ -322,7 +322,7 @@ exports.editRoles = async (req,res) => {
     if (!data.teacher_id||!data.student_id) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const query = await Classes.findOne({ class_code: classcode })
@@ -375,12 +375,12 @@ exports.editRoles = async (req,res) => {
 };
 
 exports.join = async (req,res) => {
-    const user_email = req.userEmail;
+    const username = req.username;
     const classcode  = req.body.class_code;
     if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
     
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const query = await Classes.findOne({ class_code: classcode })
@@ -424,7 +424,7 @@ exports.join = async (req,res) => {
 };
 
 exports.nickname = async (req,res) => {
-    const user_email = req.userEmail;
+    const username = req.username;
 
     const { error } = classNicknameValidation(req.body);
     if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
@@ -432,7 +432,7 @@ exports.nickname = async (req,res) => {
     const classcode = req.body.class_code;
     
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const query = await Classes.findOne({ class_code: classcode })
@@ -470,13 +470,13 @@ exports.nickname = async (req,res) => {
 };
 
 exports.leave = async (req,res) => {
-    const user_email = req.userEmail;
+    const username = req.username;
 
     const classcode  = req.body.class_code;
     if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
     
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const query = await Classes.findOne({ class_code: classcode })

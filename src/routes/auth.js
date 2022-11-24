@@ -4,9 +4,7 @@ const jwt = require('../jwt');
 
 const AuthController = require('../controllers/AuthController');
 
-router.post('/login', AuthController.login);
 router.post('/register', AuthController.register);
-router.get('/test', AuthController.test);
-router.get('/', jwt.verify, AuthController.isAuth);
+router.get('/loginSession', jwt.verify, AuthController.loginSession);
 
 module.exports = router;

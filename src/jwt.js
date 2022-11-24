@@ -13,6 +13,7 @@ const verify = async (req, res, next) => {
   var token = req.headers.authorization
     ? req.headers.authorization.split(" ")[1]
     : null;
+
   if (!token)
     return res
       .status(403)
@@ -20,7 +21,7 @@ const verify = async (req, res, next) => {
 
   try {
     const payload = await verifier.verify(token);
-    req.userEmail = payload.email;
+    req.username = payload.username;
     next();
   } catch {
     return res

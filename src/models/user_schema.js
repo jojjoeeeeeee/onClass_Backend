@@ -14,7 +14,6 @@ const notification_schema = mongoose.Schema({
 
 const schema = mongoose.Schema({
     username: String,
-    password: String,
     email: String,
     optional_contact: String,
     profile_pic: String,

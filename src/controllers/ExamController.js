@@ -12,14 +12,14 @@ const exam_status = ['ยังไม่ถึงช่วงสอบ','อย�
 
 exports.get = async (req,res) => {
 
-    const user_email = req.userEmail;
+    const username = req.username;
     const classcode = req.body.class_code;
     const exam_id = req.body.exam_id;
 
     if (!classcode||!exam_id) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
@@ -201,12 +201,12 @@ exports.get = async (req,res) => {
 };
 
 exports.getAll = async (req,res) => {
-    const user_email = req.userEmail;
+    const username = req.username;
     const classcode = req.body.class_code;
     if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
@@ -296,7 +296,7 @@ exports.getAll = async (req,res) => {
 };
 
 exports.stdSubmit = async (req,res) => {
-    const user_email = req.userEmail;
+    const username = req.username;
     const classcode = req.body.class_code;
     const exam_id = req.body.exam_id;
     const submitResult = req.body.data;
@@ -311,7 +311,7 @@ exports.stdSubmit = async (req,res) => {
     if (resultNotValid) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
@@ -358,7 +358,7 @@ exports.stdSubmit = async (req,res) => {
 };
 
 exports.scoreSubjective = async (req,res) => {
-    const user_email = req.userEmail;
+    const username = req.username;
     const classcode = req.body.class_code;
     const exam_id = req.body.exam_id;
     const score_data = req.body.data;
@@ -366,7 +366,7 @@ exports.scoreSubjective = async (req,res) => {
     if (!classcode||!exam_id||!score_data) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
@@ -416,14 +416,14 @@ exports.scoreSubjective = async (req,res) => {
 };
 
 exports.getResultForTeacher = async (req,res) => {
-    const user_email = req.userEmail;
+    const username = req.username;
     const classcode = req.body.class_code;
     const exam_id = req.body.exam_id;
 
     if (!classcode||!exam_id) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
@@ -551,7 +551,7 @@ exports.getResultForTeacher = async (req,res) => {
 };
 
 exports.create = async (req,res) => {
-    const user_email = req.userEmail;
+    const username = req.username;
     const classcode = req.body.class_code;
 
     //exam validation
@@ -561,7 +561,7 @@ exports.create = async (req,res) => {
     //part_list should have validation || this method just create empty teacher edit add choice then edit the model later
     
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
@@ -589,7 +589,7 @@ exports.create = async (req,res) => {
 };
 
 exports.edit = async (req,res) => {
-    const user_email = req.userEmail;
+    const username = req.username;
     const classcode = req.body.class_code;
 
     //exam validation
@@ -600,7 +600,7 @@ exports.edit = async (req,res) => {
     const exam_id = exam.id
 
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const exam_data = await Exams.findById(exam_id);
@@ -652,13 +652,13 @@ exports.edit = async (req,res) => {
 
 exports.delete = async (req,res) => {
     //delete all exam model
-    const user_email = req.userEmail;
+    const username = req.username;
     const exam_id = req.body.exam_id;
 
     if (!exam_id) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const exam_data = await Exams.findById(exam_id);
@@ -687,14 +687,14 @@ exports.delete = async (req,res) => {
 };
 
 exports.deleteResult = async (req,res) => {
-    const user_email = req.userEmail;
+    const username = req.username;
     const classcode = req.body.class_code;
     const exam_id = req.body.exam_id;
 
     if (!exam_id) return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
-        const users = await Users.findOne({ email: user_email })
+        const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const exam_data = await Exams.findById(exam_id);

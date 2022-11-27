@@ -1,25 +1,23 @@
 const Users = require('../models/user_schema');
-const bcrypt = require('bcryptjs');
-const jwt = require('../jwt');
 const Files = require('../models/file_schema');
 
-const { loginValidation, registerValidation } = require('../services/validation');
+const { registerValidation } = require('../services/validation');
 
 exports.register = async (req,res) => {
     const { error } = registerValidation(req.body);
-    if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
+    if (error) return res.status(200).json({ result: 'nOK', message: error.details[0].message, data: [] });
 
     const usernameExist = await Users.findOne({username: req.body.username});
-    if (usernameExist) return res.status(200).json({result: 'nOK', message: 'Username already exists'});
+    if (usernameExist) return res.status(200).json({ result: 'nOK', message: 'Username already exists', data: [] });
 
     const emailExist = await Users.findOne({email: req.body.email});
-    if (emailExist) return res.status(200).json({result: 'nOK', message: 'Email already exists'});
+    if (emailExist) return res.status(200).json({ result: 'nOK', message: 'Email already exists', data: [] });
 
     try {
         const data = await Users.create(req.body);
-        res.status(200).json({result: 'OK', message: 'success create account'});
+        res.status(200).json({ result: 'OK', message: 'success create account', data: [] });
     } catch (e) {
-        res.status(500).json({result: 'Internal Server Error', message: ''});
+        res.status(500).json({ result: 'Internal Server Error', message: '', data: [] });
     }
 };
 
@@ -29,7 +27,7 @@ exports.loginSession = async (req,res) => {
 
     try {
         const users = await Users.findOne({username: username});
-        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        if (!users) return res.status(404).json({ result: 'Not found', message: '', data: [] });
         const user_id = users._id;
         const data = await Users.findById(user_id);
         const userSchema = {
@@ -45,6 +43,6 @@ exports.loginSession = async (req,res) => {
 
         res.status(200).json({ result: 'OK', message: 'success token provided', data: [userSchema] });
     } catch (e) {
-        res.status(500).json({result: 'Internal Server Error', message: ''});
+        res.status(500).json({ result: 'Internal Server Error', message: '', data: [] });
     }
 }

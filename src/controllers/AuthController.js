@@ -33,13 +33,15 @@ exports.loginSession = async (req,res) => {
         const userSchema = {
             username: data.username,
             email: data.email,
-            profile_pic: '',
+            profile_pic: null,
             name: data.name,
             class: data.class
         }
 
-        // const profile_pic = await Files.findById(data.profile_pic);
-        // userSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path ?? '/public/img/1638125882758-Asset 4@1.png'}`
+        const profile_pic = await Files.findById(data.profile_pic);
+        if (profile_pic !== null) {
+            userSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path ?? '/public/img/1638125882758-Asset 4@1.png'}`
+        }
 
         res.status(200).json({ result: 'OK', message: 'success token provided', data: [userSchema] });
     } catch (e) {

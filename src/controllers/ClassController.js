@@ -23,7 +23,6 @@ exports.getAll = async (req,res) => {
             const data = await Classes.findOne({ class_code: users.class[i].class_code });
 
             const query_first_teacher = await Users.findById(data.teacher_id[0]);
-            
 
             const first_teacher_details = {
                 user_id: query_first_teacher._id,
@@ -31,11 +30,13 @@ exports.getAll = async (req,res) => {
                 email: query_first_teacher.email,
                 name: query_first_teacher.name,
                 optional_contact: query_first_teacher.optional_contact,
-                profile_pic: ''
+                profile_pic: null
             }
 
             const profile_pic = await Files.findById(query_first_teacher.profile_pic);
-            first_teacher_details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+            if (profile_pic !== null) {
+                first_teacher_details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+            }
 
             const class_details = {
                 class_code: data.class_code,
@@ -44,12 +45,14 @@ exports.getAll = async (req,res) => {
                 class_section: data.class_section,
                 class_room: data.class_room,
                 class_subject: data.class_subject,
-                class_thumbnail: '',
+                class_thumbnail: null,
                 teacher: first_teacher_details
             }
 
             const thumbnail = await Files.findById(data.class_thumbnail);
-            class_details.class_thumbnail = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${thumbnail.file_path}`
+            if (thumbnail !== null) {
+                class_details.class_thumbnail = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${thumbnail.file_path}`
+            }
             res_class_data.push(class_details);
         }
         res.status(200).json({result: 'OK', message: '', data: res_class_data});

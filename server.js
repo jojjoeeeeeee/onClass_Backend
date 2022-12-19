@@ -9,7 +9,7 @@ require("dotenv").config({ path: "./src/.env" });
 app.use(helmet());
 
 const corsOptions = {
-  origin: ['https://63a05429d8175d6fef2d5e06--incandescent-parfait-30d95b.netlify.app'],
+  origin: ['http://ec2-54-255-229-73.ap-southeast-1.compute.amazonaws.com'],
   exposedHeaders: "Authorization",
 };
 

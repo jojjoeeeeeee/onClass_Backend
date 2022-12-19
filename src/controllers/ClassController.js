@@ -15,7 +15,7 @@ exports.getAll = async (req,res) => {
 
     try {
         const users = await Users.findOne({ username: username })
-        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        if (!users) return res.status(404).json({result: 'Not found', message: '', data: []});
         if (users.class.length == 0) return res.status(200).json({result: 'OK', message: 'No class', data: []});
 
         const res_class_data = []
@@ -57,7 +57,7 @@ exports.getAll = async (req,res) => {
         }
         res.status(200).json({result: 'OK', message: '', data: res_class_data});
     } catch (e) {
-        res.status(500).json({result: 'Internal Server Error', message: ''});
+        res.status(500).json({result: 'Internal Server Error', message: '', data: []});
     }
 };
 

@@ -246,15 +246,15 @@ exports.get = async (req,res) => {
 exports.getAll = async (req,res) => {
     const username = req.username;
     const classcode = req.body.class_code;
-    if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
+    if (!classcode) return res.status(400).json({result: 'Bad request', message: '', data: []});
 
     try {
         const users = await Users.findOne({ username: username })
-        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        if (!users) return res.status(404).json({result: 'Not found', message: '', data: []});
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode })
-        if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data) return res.status(404).json({result: 'Not found', message: '', data: []});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied', data: []});
 
         const assignment_data = []
         if (class_data.student_id.includes(user_id)) {
@@ -334,7 +334,7 @@ exports.getAll = async (req,res) => {
             res.status(200).json({result: 'OK', message: '', data: sorted_feed_data.reverse()});
         }
     } catch (e) {
-        res.status(500).json({result: 'Internal Server Error', message: ''});
+        res.status(500).json({result: 'Internal Server Error', message: '', data: []});
     }
 };
 
@@ -343,7 +343,7 @@ exports.getAllFromNotification = async (req,res) => {
 
     try {
         const users = await Users.findOne({ username: username })
-        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        if (!users) return res.status(404).json({result: 'Not found', message: '', data: []});
         const user_id = users._id;
         const data = await Users.findById(user_id);
 
@@ -352,7 +352,6 @@ exports.getAllFromNotification = async (req,res) => {
             if (data.notification[i].type == 'assignment') {
                 const query = await Assignments.findById(data.notification[i].todo_id);
                 const class_data = await Classes.findOne({ class_code: data.notification[i].class_code});
-
                 var status = ''
 
                 //Status validate
@@ -385,7 +384,7 @@ exports.getAllFromNotification = async (req,res) => {
         const sorted_feed_data = res_data.sort((a, b) => a.created.valueOf() - b.created.valueOf())
         res.status(200).json({result: 'OK', message: '', data: res_data.reverse()});
     } catch (e) {
-        res.status(500).json({result: 'Internal Server Error', message: ''});
+        res.status(500).json({result: 'Internal Server Error', message: '', data: []});
     }
 };
 

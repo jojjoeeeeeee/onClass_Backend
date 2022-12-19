@@ -9,7 +9,8 @@ require("dotenv").config({ path: "./src/.env" });
 app.use(helmet());
 
 const corsOptions = {
-  origin: ['http://ec2-54-255-229-73.ap-southeast-1.compute.amazonaws.com'],
+  origin: 'http://ec2-54-255-229-73.ap-southeast-1.compute.amazonaws.com',
+  optionsSuccessStatus: 200,
   exposedHeaders: "Authorization",
 };
 

@@ -65,15 +65,15 @@ exports.get = async (req,res) => {
     const username = req.username;
 
     const classcode = req.params.class_code;
-    if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
+    if (!classcode) return res.status(400).json({result: 'Bad request', message: '', data: null});
 
     try {
         const users = await Users.findOne({ username: username })
-        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        if (!users) return res.status(404).json({result: 'Not found', message: '', data: null});
         const user_id = users._id;
         const data = await Classes.findOne({ class_code: classcode });
-        if (!data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!data.teacher_id.includes(user_id) && !data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!data) return res.status(404).json({result: 'Not found', message: '', data: null});
+        if (!data.teacher_id.includes(user_id) && !data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied', data: null});
 
         const teacher_data = []
         for(let i = 0 ; i < data.teacher_id.length ; i++) {
@@ -85,12 +85,16 @@ exports.get = async (req,res) => {
                 email: query.email,
                 name: query.name,
                 optional_contact: query.optional_contact,
-                profile_pic: ''
+                profile_pic: null
             }
-
+            
             const profile_pic = await Files.findById(query.profile_pic);
-            details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
-            teacher_data.push(details);
+            if (profile_pic !== null) {
+                details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+                teacher_data.push(details);
+            }
+            
+            
             
         }
 
@@ -104,12 +108,14 @@ exports.get = async (req,res) => {
                 email: query.email,
                 name: query.name,
                 optional_contact: query.optional_contact,
-                profile_pic: ''
+                profile_pic: null
             }
 
             const profile_pic = await Files.findById(query.profile_pic);
-            details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
-            student_data.push(details);
+            if (profile_pic !== null) {
+                details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+                student_data.push(details);
+            }
         }
 
         const assignment_data = []
@@ -163,7 +169,7 @@ exports.get = async (req,res) => {
             const details = {
                 id: query._id,
                 post_author: [{}],
-                profile_pic: '',
+                profile_pic: null,
                 type: query.type,
                 post_content: query.post_content,
                 post_optional_file: file_arr,
@@ -174,7 +180,9 @@ exports.get = async (req,res) => {
             }
 
             const profile_pic = await Files.findById(user_query.profile_pic);
-            details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+            if (profile_pic !== null) {
+                details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+            }
 
             data.nickname.map(nickKey => {
                 if (nickKey.user_id == query.post_author_id) {
@@ -224,7 +232,7 @@ exports.get = async (req,res) => {
             class_section: data.class_section,
             class_room: data.class_room,
             class_subject: data.class_subject,
-            class_thumbnail: '',
+            class_thumbnail: null,
             teacher: teacher_data,
             student: student_data,
             class_assignment: assignment_data,
@@ -235,11 +243,13 @@ exports.get = async (req,res) => {
         }
 
         const thumbnail = await Files.findById(data.class_thumbnail);
-        res_data.class_thumbnail = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${thumbnail.file_path}`
+        if (thumbnail !== null) {
+            res_data.class_thumbnail = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${thumbnail.file_path}`
+        }
 
-        res.status(200).json({result: 'OK', message: '', data: [res_data]});
+        res.status(200).json({result: 'OK', message: '', data: res_data});
     } catch (e) {
-        res.status(500).json({result: 'Internal Server Error', message: ''});
+        res.status(500).json({result: 'Internal Server Error', message: '', data: null});
     }
 };
 
@@ -255,15 +265,50 @@ exports.create = async (req,res) => {
         classcode = generateClasscode();
         classcodeExist = await Classes.findOne({ class_code : classcode });
     }
+
+    const { class_name,
+            class_description,
+            class_section, 
+            class_room, 
+            class_subject, 
+            class_thumbnail, 
+            firstname, 
+            lastname, 
+            optional_name
+         } = req.body;
     
     try {
         const users = await Users.findOne({ username: username })
         if (!users) return res.status(404).json({result: 'Not found', message: ''});
         const user_id = users._id;
         const teacher_id = [user_id];
-        req.body.class_code = classcode;
-        req.body.teacher_id = teacher_id;
-        const data = await Classes.create(req.body);
+
+        const class_form = {
+            class_code: classcode,
+            class_name: class_name,
+            class_description: class_description,
+            class_section: class_section,
+            class_room: class_room,
+            class_subject: class_subject,
+            class_thumbnail: class_thumbnail,
+            teacher_id: teacher_id
+        }
+
+        const data = await Classes.create(class_form);
+
+        const nickname_form = {
+            user_id: user_id,
+            firstname: firstname,
+            lastname: lastname,
+            optional_name: optional_name
+        }
+
+        const nickname = [nickname_form];
+        
+        const new_class_nickname_data = data;
+        new_class_nickname_data.nickname = nickname;
+
+        const new_class_data = await Classes.findOneAndUpdate({ class_code: classcode }, new_class_nickname_data);
 
         const query_user = await Users.findById(user_id);
         var user_class = query_user.class
@@ -379,8 +424,11 @@ exports.editRoles = async (req,res) => {
 
 exports.join = async (req,res) => {
     const username = req.username;
-    const classcode  = req.body.class_code;
-    if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
+
+    const { error } = classNicknameValidation(req.body);
+    if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
+
+    const { classcode, firstname, lastname, optional_name } = req.body;
     
     try {
         const users = await Users.findOne({ username: username })
@@ -397,7 +445,31 @@ exports.join = async (req,res) => {
         new_data.student_id = student_id;
 
         const data = await Classes.findOneAndUpdate({ class_code: classcode }, new_data);
+
+        var nickname = data.nickname;
+        var alreadyNicknamed = false
+        const nickname_form = {
+            user_id: user_id,
+            firstname: firstname,
+            lastname: lastname,
+            optional_name: optional_name
+        }
+
+        data.nickname.map((key,index) => {
+            if (key.user_id == user_id) {
+                nickname[index] = nickname_form
+                alreadyNicknamed = true
+            }
+        })
         
+        if (!alreadyNicknamed) {
+            nickname.push(nickname_form)
+        }
+        
+        const new_class_nickname_data = data;
+        new_class_nickname_data.nickname = nickname;
+
+        const new_class_data = await Classes.findOneAndUpdate({ class_code: classcode }, new_class_nickname_data);
 
         const query_user = await Users.findById(user_id);
         
@@ -420,6 +492,7 @@ exports.join = async (req,res) => {
         }
         
         const data_user = await Users.findByIdAndUpdate(user_id, query_user);
+        
         res.status(200).json({result: 'OK', message: 'success join class'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

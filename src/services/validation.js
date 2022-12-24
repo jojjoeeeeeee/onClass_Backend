@@ -51,6 +51,16 @@ const classValidation = data => {
         class_thumbnail: Joi.string()
                 .allow('')
                 .required(), 
+        firstname: Joi.string()
+                .max(32)
+                .required(),
+        lastname: Joi.string()
+                .max(32)
+                .required(),
+        optional_name: Joi.string()
+                .max(32)
+                .allow('')
+                .required()
     });
     return schema.validate(data);
 }

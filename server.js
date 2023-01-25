@@ -11,7 +11,8 @@ app.use(helmet());
 const corsOptions = {
   origin: 'http://ec2-54-255-229-73.ap-southeast-1.compute.amazonaws.com',
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  optionsSuccessStatus: 200,
+  preflightContinue: false,
+	optionsSuccessStatus: 204,
   exposedHeaders: "Authorization",
 };
 

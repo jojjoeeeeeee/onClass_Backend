@@ -14,7 +14,8 @@ exports.get = async (req,res) => {
     const { error } = classAssignmentValidation(req.body);
     if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message, data: null});
 
-    const {classcode, assignment_id} = req.body;
+    const classcode = req.body.class_code;
+    const {assignment_id} = req.body;
 
     try {
         const users = await Users.findOne({ username: username })
@@ -260,7 +261,7 @@ exports.getAll = async (req,res) => {
     const { error } = classClassCodeValidation(req.body);
     if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message, data: null});
 
-    const { classcode } = req.body;
+    const classcode = req.body.class_code;
 
     try {
         const users = await Users.findOne({ username: username })

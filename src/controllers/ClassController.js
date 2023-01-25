@@ -428,8 +428,9 @@ exports.join = async (req,res) => {
 
     const { error } = classNicknameValidation(req.body);
     if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
-
-    const { classcode, firstname, lastname, optional_name } = req.body;
+    
+    const classcode = req.body.class_code;
+    const { firstname, lastname, optional_name } = req.body;
     
     try {
         const users = await Users.findOne({ username: username })

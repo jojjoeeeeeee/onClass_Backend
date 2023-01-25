@@ -32,14 +32,14 @@ const classValidation = (data) => {
 
 const classClassCodeValidation = (data) => {
   const schema = Joi.object({
-    classcode: Joi.string().required(),
+    class_code: Joi.string().required(),
   });
   return schema.validate(data);
 };
 
 const classNicknameValidation = (data) => {
   const schema = Joi.object({
-    classcode: Joi.string().required(),
+    class_code: Joi.string().required(),
     firstname: Joi.string().max(32).required(),
     lastname: Joi.string().max(32).required(),
     optional_name: Joi.string().max(32).allow("").required(),
@@ -49,7 +49,7 @@ const classNicknameValidation = (data) => {
 
 const classAssignmentValidation = (data) => {
   const schema = Joi.object({
-    classcode: Joi.string().required(),
+    class_code: Joi.string().required(),
     assignment_id: Joi.string().required(),
   });
   return schema.validate(data);

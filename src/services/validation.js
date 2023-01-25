@@ -1,5 +1,4 @@
 const Joi = require("@hapi/joi");
-const { schema } = require("../models/user_schema");
 
 const registerValidation = (data) => {
   const schema = Joi.object({
@@ -55,8 +54,17 @@ const classAssignmentValidation = (data) => {
   return schema.validate(data);
 };
 
+const classPostValidation = (data) => {
+  const schema = Joi.object({
+    class_code: Joi.string().required(),
+    post_id: Joi.string().required()
+  });
+  return schema.validate(data);
+};
+
 module.exports.registerValidation = registerValidation;
 module.exports.classValidation = classValidation;
 module.exports.classClassCodeValidation = classClassCodeValidation;
 module.exports.classNicknameValidation = classNicknameValidation;
 module.exports.classAssignmentValidation = classAssignmentValidation;
+module.exports.classPostValidation = classPostValidation;

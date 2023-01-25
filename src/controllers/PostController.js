@@ -3,23 +3,27 @@ const Classes = require('../models/class_schema');
 const Posts = require('../models/post_schema');
 const Files = require('../models/file_schema');
 
+const { classPostValidation } = require('../services/validation');
+
 exports.get = async (req,res) => {
     const username = req.username;
+    const { error } = classPostValidation(req.body);
+    if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message, data: null});
+
     const classcode = req.body.class_code;
-    const post_id = req.body.post_id;
-    if (!classcode||!post_id) return res.status(400).json({result: 'Bad request', message: ''});
+    const { post_id } = req.body;
 
     try {
         const users = await Users.findOne({ username: username })
-        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        if (!users) return res.status(404).json({result: 'Not found', message: '', data: null});
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode })
-        if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data) return res.status(404).json({result: 'Not found', message: '', data: null});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied', data: null});
 
-        if (!class_data.class_post_id.includes(post_id)) return res.status(404).json({result: 'Not found', message: ''});
+        if (!class_data.class_post_id.includes(post_id)) return res.status(404).json({result: 'Not found', message: '', data: null});
         const post_data = await Posts.findById(post_id);
-        if (!post_data) return res.status(404).json({result: 'Not found', message: ''});
+        if (!post_data) return res.status(404).json({result: 'Not found', message: '', data: null});
 
         const file_id = post_data.post_optional_file.map(key => {
             return key
@@ -28,7 +32,7 @@ exports.get = async (req,res) => {
         const file_arr = []
         for(let i = 0; i < file_id.length; i++){
             const file_data = await Files.findById(file_id[i]);
-            if(!file_data) return res.status(404).json({result: 'Not found', message: ''});
+            if(!file_data) return res.status(404).json({result: 'Not found', message: '', data: null});
             const file_obj = {
                 file_name: file_data.file_name,
                 file_extension: file_data.filename_extension,
@@ -42,7 +46,7 @@ exports.get = async (req,res) => {
             id: post_data._id,
             class_code: post_data.classcode,
             post_author: {},
-            profile_pic: '',
+            profile_pic: null,
             type: post_data.type,
             post_content: post_data.post_content,
             post_optional_file: file_arr,
@@ -53,8 +57,10 @@ exports.get = async (req,res) => {
 
         const author = await Users.findById(post_data.post_author_id);
         const profile_pic = await Files.findById(author.profile_pic);
-        postSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
-
+        if (profile_pic !== null && profile_pic !== '') {
+            postSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+        }
+       
         class_data.nickname.map(nickKey => {
             if (nickKey.user_id == post_data.post_author_id) {
                 postSchema.post_author = nickKey;
@@ -65,7 +71,7 @@ exports.get = async (req,res) => {
         for (let i = 0 ; i < post_data.comment.length ; i++) {
             const commentSchema = {
                 comment_author: {},
-                profile_pic: '',
+                profile_pic: null,
                 content: post_data.comment[i].content,
                 create: post_data.comment[i].created
             }
@@ -78,7 +84,9 @@ exports.get = async (req,res) => {
 
             const query = await Users.findById(post_data.comment[i].comment_author_id);
             const comment_profile_pic = await Files.findById(query.profile_pic);
-            commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
+            if (comment_profile_pic !== null && comment_profile_pic !== '') {
+                commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
+            }
             postComment.push(commentSchema);
         }
 
@@ -86,7 +94,7 @@ exports.get = async (req,res) => {
 
         res.status(200).json({result: 'OK', message: '', data: [postSchema]});
     } catch (e) {
-        res.status(500).json({result: 'Internal Server Error', message: ''});
+        res.status(500).json({result: 'Internal Server Error', message: '', data: null});
     }
 };
 

@@ -34,7 +34,7 @@ exports.getAll = async (req,res) => {
             }
 
             const profile_pic = await Files.findById(query_first_teacher.profile_pic);
-            if (profile_pic !== null) {
+            if (profile_pic !== null && profile_pic !== '') {
                 first_teacher_details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
             }
 
@@ -50,7 +50,7 @@ exports.getAll = async (req,res) => {
             }
 
             const thumbnail = await Files.findById(data.class_thumbnail);
-            if (thumbnail !== null) {
+            if (thumbnail !== null && thumbnail !== '') {
                 class_details.class_thumbnail = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${thumbnail.file_path}`
             }
             res_class_data.push(class_details);
@@ -89,11 +89,10 @@ exports.get = async (req,res) => {
             }
             
             const profile_pic = await Files.findById(query.profile_pic);
-            if (profile_pic !== null) {
+            if (profile_pic !== null && profile_pic !== '') {
                 details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
-                teacher_data.push(details);
             }
-            
+            teacher_data.push(details);
             
             
         }
@@ -112,10 +111,10 @@ exports.get = async (req,res) => {
             }
 
             const profile_pic = await Files.findById(query.profile_pic);
-            if (profile_pic !== null) {
+            if (profile_pic !== null && profile_pic !== '') {
                 details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
-                student_data.push(details);
             }
+            student_data.push(details);
         }
 
         const assignment_data = []
@@ -139,6 +138,8 @@ exports.get = async (req,res) => {
                 assignment_name: query.assignment_name,
                 assignment_description: query.assignment_description,
                 turnin_late: query.turnin_late,
+                is_symbol_score: query.is_symbol_score,
+                symbol_score: query.symbol_score,
                 score: query.score,
                 assignment_optional_file: file_arr,
                 comment: query.comment.length,
@@ -180,7 +181,7 @@ exports.get = async (req,res) => {
             }
 
             const profile_pic = await Files.findById(user_query.profile_pic);
-            if (profile_pic !== null) {
+            if (profile_pic !== null && profile_pic !== '') {
                 details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
             }
 
@@ -243,7 +244,7 @@ exports.get = async (req,res) => {
         }
 
         const thumbnail = await Files.findById(data.class_thumbnail);
-        if (thumbnail !== null) {
+        if (thumbnail !== null && thumbnail !== '') {
             res_data.class_thumbnail = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${thumbnail.file_path}`
         }
 

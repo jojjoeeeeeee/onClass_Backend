@@ -8,6 +8,8 @@ const schema = mongoose.Schema({
     assignment_name: String,
     assignment_description: String,
     turnin_late: Boolean,
+    is_symbol_score: Boolean,
+    symbol_score: [String],
     score: Number,
     assignment_optional_file: [String],
     comment: [Comment],

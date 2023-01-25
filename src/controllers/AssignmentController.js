@@ -6,25 +6,27 @@ const Files = require('../models/file_schema');
 
 const moment = require('moment');
 
+const { classClassCodeValidation, classAssignmentValidation } = require('../services/validation');
 const turnIn_status = ['ส่งแล้ว','ส่งช้า','ยังไม่ส่ง','เลยกำหนดส่ง']
 
 exports.get = async (req,res) => {
     const username = req.username;
-    const classcode = req.body.class_code;
-    const assignment_id = req.body.assignment_id;
-    if (!classcode||!assignment_id) return res.status(400).json({result: 'Bad request', message: ''});
+    const { error } = classAssignmentValidation(req.body);
+    if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message, data: null});
+
+    const {classcode, assignment_id} = req.body;
 
     try {
         const users = await Users.findOne({ username: username })
-        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        if (!users) return res.status(404).json({result: 'Not found', message: '', data: null});
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode })
-        if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data) return res.status(404).json({result: 'Not found', message: '', data: null});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied', data: null});
         
-        if (!class_data.class_assignment_id.includes(assignment_id)) return res.status(404).json({result: 'Not found', message: ''});
+        if (!class_data.class_assignment_id.includes(assignment_id)) return res.status(404).json({result: 'Not found', message: '', data: null});
         const assignment_data = await Assignments.findById(assignment_id);
-        if (!assignment_data) return res.status(404).json({result: 'Not found', message: ''}); 
+        if (!assignment_data) return res.status(404).json({result: 'Not found', message: '', data: null}); 
 
         if(class_data.student_id.includes(user_id)) {
             //Validate time
@@ -47,7 +49,7 @@ exports.get = async (req,res) => {
             const file_arr = []
             for(let i = 0; i < file_id.length; i++){
                 const file_data = await Files.findById(file_id[i]);
-                if(!file_data) return res.status(404).json({result: 'Not found', message: ''});
+                if(!file_data) return res.status(404).json({result: 'Not found', message: '', data: null});
                 const file_obj = {
                     file_name: file_data.file_name,
                     file_extension: file_data.filename_extension,
@@ -85,7 +87,7 @@ exports.get = async (req,res) => {
                 for(let i = 0; i < std_file_id.length; i++){
 
                     const std_file_data = await Files.findById(std_file_id[i]);
-                    if(!std_file_data) return res.status(404).json({result: 'Not found', message: ''});
+                    if(!std_file_data) return res.status(404).json({result: 'Not found', message: '', data: null});
                     const std_file_obj = {
                         file_name: std_file_data.file_name,
                         file_extension: std_file_data.filename_extension,
@@ -121,6 +123,8 @@ exports.get = async (req,res) => {
                 id:assignment_data._id,
                 assignment_name: assignment_data.assignment_name,
                 assignment_description: assignment_data.assignment_description,
+                is_symbol_score: assignment_data.is_symbol_score,
+                symbol_score: assignment_data.symbol_score,
                 score: assignment_data.score,
                 assignment_optional_file: file_arr,
                 assignment_start_date: assignment_data.assignment_start_date,
@@ -136,7 +140,7 @@ exports.get = async (req,res) => {
             for (let i = 0 ; i < assignment_data.comment.length ; i++) {
                 const commentSchema = {
                     comment_author: {},
-                    profile_pic: '',
+                    profile_pic: null,
                     content: assignment_data.comment[i].content,
                     create: assignment_data.comment[i].created
                 }
@@ -148,25 +152,29 @@ exports.get = async (req,res) => {
                 })
 
                 const query = await Users.findById(assignment_data.comment[i].comment_author_id);
+                
                 const comment_profile_pic = await Files.findById(query.profile_pic);
-                commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
+                if (comment_profile_pic !== null && comment_profile_pic !== '') {
+                    commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
+                }
                 assignmentComment.push(commentSchema);
+                
             }
 
             res_assignment_data.comment = assignmentComment;
 
-            res.status(200).json({result: 'OK', message: '', data: [res_assignment_data]});
+            res.status(200).json({result: 'OK', message: '', data: res_assignment_data});
         }
         else {
             //File download path
             const file_id = assignment_data.assignment_optional_file.map(key => {
                 return key
             })
-    
+
             const file_arr = []
             for(let i = 0; i < file_id.length; i++){
                 const file_data = await Files.findById(file_id[i]);
-                if(!file_data) return res.status(404).json({result: 'Not found', message: ''});
+                if(!file_data) return res.status(404).json({result: 'Not found', message: '', data: null});
                 const file_obj = {
                     file_name: file_data.file_name,
                     file_extension: file_data.filename_extension,
@@ -180,6 +188,8 @@ exports.get = async (req,res) => {
                 id:assignment_data._id,
                 assignment_name: assignment_data.assignment_name,
                 assignment_description: assignment_data.assignment_description,
+                is_symbol_score: assignment_data.is_symbol_score,
+                symbol_score: assignment_data.symbol_score,
                 score: assignment_data.score,
                 assignment_optional_file: file_arr,
                 assignment_start_date: assignment_data.assignment_start_date,
@@ -195,7 +205,7 @@ exports.get = async (req,res) => {
                 const result_file_arr = []
                 for (let i = 0 ; i < key.file_result.length ; i++) {
                     const result_file_data = await Files.findById(key.file_result[i]);
-                    if(!result_file_data) return res.status(404).json({result: 'Not found', message: ''});
+                    if(!result_file_data) return res.status(404).json({result: 'Not found', message: '', data: null});
                     const result_file_obj = {
                         file_name: result_file_data.file_name,
                         file_extension: result_file_data.filename_extension,
@@ -217,7 +227,7 @@ exports.get = async (req,res) => {
             for (let i = 0 ; i < assignment_data.comment.length ; i++) {
                 const commentSchema = {
                     comment_author: {},
-                    profile_pic: '',
+                    profile_pic: null,
                     content: assignment_data.comment[i].content,
                     create: assignment_data.comment[i].created
                 }
@@ -230,31 +240,36 @@ exports.get = async (req,res) => {
 
                 const query = await Users.findById(assignment_data.comment[i].comment_author_id);
                 const comment_profile_pic = await Files.findById(query.profile_pic);
-                commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
+                if (comment_profile_pic !== null && comment_profile_pic !== '') {
+                    commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
+                }
                 assignmentComment.push(commentSchema);
             }
 
             res_assignment_data.comment = assignmentComment;
-            res.status(200).json({result: 'OK', message: '', data: [res_assignment_data]});
+            res.status(200).json({result: 'OK', message: '', data: res_assignment_data});
         }
         
     } catch (e) {
-        res.status(500).json({result: 'Internal Server Error', message: ''});
+        res.status(500).json({result: 'Internal Server Error', message: '', data: null});
     }
 };
 
 exports.getAll = async (req,res) => {
     const username = req.username;
-    const classcode = req.body.class_code;
-    if (!classcode) return res.status(400).json({result: 'Bad request', message: '', data: []});
+    const { error } = classClassCodeValidation(req.body);
+    if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message, data: null});
+
+    const { classcode } = req.body;
 
     try {
         const users = await Users.findOne({ username: username })
-        if (!users) return res.status(404).json({result: 'Not found', message: '', data: []});
+        if (!users) return res.status(404).json({result: 'Not found', message: '', data: null});
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode })
-        if (!class_data) return res.status(404).json({result: 'Not found', message: '', data: []});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied', data: []});
+
+        if (!class_data) return res.status(404).json({result: 'Not found', message: '', data: null});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied', data: null});
 
         const assignment_data = []
         if (class_data.student_id.includes(user_id)) {
@@ -295,6 +310,8 @@ exports.getAll = async (req,res) => {
                     id: query._id,
                     assignment_name: query.assignment_name,
                     assignment_description: query.assignment_description,
+                    is_symbol_score: query.is_symbol_score,
+                    symbol_score: query.symbol_score,
                     score: query.score,
                     assignment_start_date: query.assignment_start_date,
                     assignment_end_date: query.assignment_end_date,
@@ -321,6 +338,8 @@ exports.getAll = async (req,res) => {
                     id: query._id,
                     assignment_name: query.assignment_name,
                     assignment_description: query.assignment_description,
+                    is_symbol_score: query.is_symbol_score,
+                    symbol_score: query.symbol_score,
                     score: query.score,
                     assignment_start_date: query.assignment_start_date,
                     assignment_end_date: query.assignment_end_date,
@@ -334,7 +353,7 @@ exports.getAll = async (req,res) => {
             res.status(200).json({result: 'OK', message: '', data: sorted_feed_data.reverse()});
         }
     } catch (e) {
-        res.status(500).json({result: 'Internal Server Error', message: '', data: []});
+        res.status(500).json({result: 'Internal Server Error', message: '', data: null});
     }
 };
 

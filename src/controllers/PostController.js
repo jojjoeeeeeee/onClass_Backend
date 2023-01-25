@@ -3,7 +3,7 @@ const Classes = require('../models/class_schema');
 const Posts = require('../models/post_schema');
 const Files = require('../models/file_schema');
 
-const { classPostValidation } = require('../services/validation');
+const { classPostValidation, classPostCommentValidation, classPostPollVoteValidation } = require('../services/validation');
 
 exports.get = async (req,res) => {
     const username = req.username;
@@ -19,7 +19,7 @@ exports.get = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode })
         if (!class_data) return res.status(404).json({result: 'Not found', message: '', data: null});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied', data: null});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied', data: null});
 
         if (!class_data.class_post_id.includes(post_id)) return res.status(404).json({result: 'Not found', message: '', data: null});
         const post_data = await Posts.findById(post_id);
@@ -114,7 +114,7 @@ exports.publish = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode })
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         const postSchema = {
             class_code: classcode,
@@ -164,13 +164,13 @@ exports.deletePost = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode })
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         if (!class_data.class_post_id.includes(post_id)) return res.status(404).json({result: 'Not found', message: ''});
         const post_data = await Posts.findById(post_id);
         if (!post_data) return res.status(404).json({result: 'Not found', message: ''});
 
-        if (post_data.post_author_id != user_id) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (post_data.post_author_id != user_id) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         const post_index = class_data.class_post_id.indexOf(post_id);
         class_data.class_post_id.splice(post_index,1);
@@ -183,15 +183,14 @@ exports.deletePost = async (req,res) => {
     }
 };
 
-exports.comment = async (req,res) => {
+exports.pollVote = async (req,res) => {
     const username = req.username;
-    const classcode = req.body.class_code;
-    const post_id = req.body.id;
-    const comment_data = req.body.data;
-    if (!classcode||!post_id||!comment_data) return res.status(400).json({result: 'Bad request', message: ''});
 
-    //Comment validation
-    if (!comment_data.content) return res.status(400).json({result: 'Bad request', message: ''});
+    const { error } = classPostPollVoteValidation(req.body);
+    if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
+
+    const classcode = req.body.class_code;
+    const { post_id, choice_name } = req.body;
 
     try {
         const users = await Users.findOne({ username: username })
@@ -199,7 +198,42 @@ exports.comment = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode })
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
+
+        if (!class_data.class_post_id.includes(post_id)) return res.status(404).json({result: 'Not found', message: ''});
+        const post_data = await Posts.findById(post_id);
+        if (!post_data) return res.status(404).json({result: 'Not found', message: ''});
+
+        for (let i = 0 ; i < post_data.poll.length ; i++) {
+            if (post_data.poll[i].choice_name === choice_name) {
+                post_data.poll[i].vote = post_data.poll[i].vote + 1;
+            }
+        }
+
+        await Posts.findByIdAndUpdate(post_id, post_data);
+        res.status(200).json({result: 'OK', message: 'success post vote poll'});
+    } catch (e) {
+        res.status(500).json({result: 'Internal Server Error', message: ''});
+    }
+};
+
+exports.comment = async (req,res) => {
+    const username = req.username;
+
+    const { error } = classPostCommentValidation(req.body);
+    if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
+
+    const classcode = req.body.class_code;
+    const post_id = req.body.id;
+    const comment_data = req.body.data;
+
+    try {
+        const users = await Users.findOne({ username: username })
+        if (!users) return res.status(404).json({result: 'Not found', message: ''});
+        const user_id = users._id;
+        const class_data = await Classes.findOne({ class_code: classcode })
+        if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         if (!class_data.class_post_id.includes(post_id)) return res.status(404).json({result: 'Not found', message: ''});
         const post_data = await Posts.findById(post_id);
@@ -232,13 +266,13 @@ exports.deleteComment = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode })
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         if (!class_data.class_post_id.includes(post_id)) return res.status(404).json({result: 'Not found', message: ''});
         const post_data = await Posts.findById(post_id);
         if (!post_data) return res.status(404).json({result: 'Not found', message: ''});
 
-        if (post_data.comment[comment_index].comment_author_id != user_id) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (post_data.comment[comment_index].comment_author_id != user_id) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         post_data.comment.splice(comment_index,1);
 

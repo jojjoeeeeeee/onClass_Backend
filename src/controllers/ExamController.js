@@ -24,7 +24,7 @@ exports.get = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'You not in this class'});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'You not in this class'});
         
         if (!class_data.class_exam_id.includes(exam_id)) return res.status(404).json({result: 'Not found', message: ''});
 
@@ -211,7 +211,7 @@ exports.getAll = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'You not in this class'});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'You not in this class'});
 
         const exam_data = []
         if (class_data.student_id.includes(user_id)) {
@@ -316,7 +316,7 @@ exports.stdSubmit = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
         
         if (!class_data.class_exam_id.includes(exam_id)) return res.status(404).json({result: 'Not found', message: ''});
         const exam_data = await Exams.findById(exam_id);
@@ -371,7 +371,7 @@ exports.scoreSubjective = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         if (!class_data.class_exam_id.includes(exam_id)) return res.status(404).json({result: 'Not found', message: ''});
 
@@ -428,7 +428,7 @@ exports.getResultForTeacher = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         if (!class_data.class_exam_id.includes(exam_id)) return res.status(404).json({result: 'Not found', message: ''});
 
@@ -566,7 +566,7 @@ exports.create = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         exam.author = user_id;
         const data = await Exams.create(exam);
@@ -605,11 +605,11 @@ exports.edit = async (req,res) => {
         const user_id = users._id;
         const exam_data = await Exams.findById(exam_id);
         if (!exam_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (exam_data.author != exam.author) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (exam_data.author != exam.author) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
         
         //Validate time
         const now = moment()
@@ -663,7 +663,7 @@ exports.delete = async (req,res) => {
         const user_id = users._id;
         const exam_data = await Exams.findById(exam_id);
         if (!exam_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (exam_data.author != user_id) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (exam_data.author != user_id) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         const class_data = await Classes.find({ class_exam_id: exam_id });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
@@ -702,7 +702,7 @@ exports.deleteResult = async (req,res) => {
 
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         const class_exam_result = await ExamResults.findOne({ exam_id: exam_id, class_code: classcode });
         class_exam_result.student_result = []

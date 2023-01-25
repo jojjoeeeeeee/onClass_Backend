@@ -73,7 +73,7 @@ exports.get = async (req,res) => {
         const user_id = users._id;
         const data = await Classes.findOne({ class_code: classcode });
         if (!data) return res.status(404).json({result: 'Not found', message: '', data: null});
-        if (!data.teacher_id.includes(user_id) && !data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied', data: null});
+        if (!data.teacher_id.includes(user_id) && !data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied', data: null});
 
         const teacher_data = []
         for(let i = 0 ; i < data.teacher_id.length ; i++) {
@@ -346,7 +346,7 @@ exports.editDetails = async (req,res) => {
         const user_id = users._id;
         const query = await Classes.findOne({ class_code: classcode })
         if (!query) return res.status(404).json({result: 'Not found', message: ''});
-        if (!query.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!query.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         query.class_name = data.class_name;
         query.class_description = data.class_description;
@@ -376,7 +376,7 @@ exports.editRoles = async (req,res) => {
         const user_id = users._id;
         const query = await Classes.findOne({ class_code: classcode })
         if (!query) return res.status(404).json({result: 'Not found', message: ''});
-        if (!query.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!query.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         const user_idArr = []
         for(let i = 0 ; i < data.student_id.length ; i++) {
@@ -388,7 +388,7 @@ exports.editRoles = async (req,res) => {
         }
 
         user_idArr.map(usrid => {
-            if(!query.teacher_id.includes(usrid) && !query.student_id.includes(usrid)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+            if(!query.teacher_id.includes(usrid) && !query.student_id.includes(usrid)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
         });
 
         if (data.teacher_id.length >= 1 ) {
@@ -413,7 +413,7 @@ exports.editRoles = async (req,res) => {
             const updated_class_data = await Classes.findOneAndUpdate({ class_code : classcode }, query);
         }
         else {
-            return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+            return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
         }
 
         res.status(200).json({result: 'OK', message: 'success edit class details'});
@@ -515,7 +515,7 @@ exports.nickname = async (req,res) => {
         const user_id = users._id;
         const query = await Classes.findOne({ class_code: classcode })
         if (!query) return res.status(404).json({result: 'Not found', message: ''});
-        if (!query.teacher_id.includes(user_id) && !query.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!query.teacher_id.includes(user_id) && !query.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         var nickname = query.nickname;
         var alreadyNicknamed = false
@@ -559,7 +559,7 @@ exports.leave = async (req,res) => {
         const user_id = users._id;
         const query = await Classes.findOne({ class_code: classcode })
         if (!query) return res.status(404).json({result: 'Not found', message: ''});
-        if (!query.teacher_id.includes(user_id) && !query.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!query.teacher_id.includes(user_id) && !query.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         if (query.teacher_id.includes(user_id)) return res.status(200).json({result: 'nOK', message: 'failed you are class teacher'});
 

@@ -6,7 +6,7 @@ const Files = require('../models/file_schema');
 
 const moment = require('moment');
 
-const { classClassCodeValidation, classAssignmentValidation } = require('../services/validation');
+const { classClassCodeValidation, classAssignmentValidation, assignmentValidation } = require('../services/validation');
 const turnIn_status = ['ส่งแล้ว','ส่งช้า','ยังไม่ส่ง','เลยกำหนดส่ง']
 
 exports.get = async (req,res) => {
@@ -23,7 +23,7 @@ exports.get = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode })
         if (!class_data) return res.status(404).json({result: 'Not found', message: '', data: null});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied', data: null});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied', data: null});
         
         if (!class_data.class_assignment_id.includes(assignment_id)) return res.status(404).json({result: 'Not found', message: '', data: null});
         const assignment_data = await Assignments.findById(assignment_id);
@@ -270,7 +270,7 @@ exports.getAll = async (req,res) => {
         const class_data = await Classes.findOne({ class_code: classcode })
 
         if (!class_data) return res.status(404).json({result: 'Not found', message: '', data: null});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied', data: null});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied', data: null});
 
         const assignment_data = []
         if (class_data.student_id.includes(user_id)) {
@@ -363,7 +363,7 @@ exports.getAllFromNotification = async (req,res) => {
 
     try {
         const users = await Users.findOne({ username: username })
-        if (!users) return res.status(404).json({result: 'Not found', message: '', data: []});
+        if (!users) return res.status(404).json({result: 'Not found', message: '', data: null});
         const user_id = users._id;
         const data = await Users.findById(user_id);
 
@@ -402,23 +402,22 @@ exports.getAllFromNotification = async (req,res) => {
             }
         }
         const sorted_feed_data = res_data.sort((a, b) => a.created.valueOf() - b.created.valueOf())
-        res.status(200).json({result: 'OK', message: '', data: res_data.reverse()});
+        res.status(200).json({result: 'OK', message: '', data: sorted_feed_data.reverse()});
     } catch (e) {
-        res.status(500).json({result: 'Internal Server Error', message: '', data: []});
+        res.status(500).json({result: 'Internal Server Error', message: '', data: null});
     }
 };
 
 exports.create = async (req,res) => {
     const username = req.username;
     const classcode = req.body.class_code;
+
+    if (!classcode||!req.body.data) return res.status(400).json({result: 'Bad request', message: ''});
+
+    const { error } = assignmentValidation(req.body.data);
+    if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
+
     const assignment_data = req.body.data;
-
-    if (!classcode||!assignment_data) return res.status(400).json({result: 'Bad request', message: ''});
-
-    //Assignment validation
-    if (!assignment_data.assignment_name||!assignment_data.assignment_description||!assignment_data.score||!assignment_data.assignment_optional_file||!assignment_data.assignment_end_date) return res.status(400).json({result: 'Bad request', message: ''});
-
-    if (typeof assignment_data.turnin_late != 'boolean') return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
         const users = await Users.findOne({ username: username })
@@ -426,20 +425,20 @@ exports.create = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode })
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
-        console.log('TEST1',assignment_data);
+        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
+
         const assignmentSchema = {
             class_code: classcode,
             assignment_name: assignment_data.assignment_name,
             assignment_description: assignment_data.assignment_description,
             turnin_late: assignment_data.turnin_late,
+            is_symbol_score: assignment_data.is_symbol_score,
+            symbol_score: assignment_data.symbol_score,
             score: assignment_data.score,
             assignment_optional_file: assignment_data.assignment_optional_file,
             comment: [],
             assignment_end_date: assignment_data.assignment_end_date
         }
-
-        
 
         const assignment = await Assignments.create(assignmentSchema);
         class_data.class_assignment_id.push(assignment._id);
@@ -485,7 +484,7 @@ exports.delete = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode })
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         if (!class_data.class_assignment_id.includes(assignment_id)) return res.status(404).json({result: 'Not found', message: ''});
         const assignment_data = await Assignments.findById(assignment_id);
@@ -531,7 +530,7 @@ exports.stdSubmit = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode })
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         if (!class_data.class_assignment_id.includes(assignment_id)) return res.status(404).json({result: 'Not found', message: ''});
         const assignment_data = await Assignments.findById(assignment_id);
@@ -547,7 +546,7 @@ exports.stdSubmit = async (req,res) => {
 
         //Cannot submit twice
         for(let i = 0; i < assignmentResultData.student_result.length; i++){
-            if(assignmentResultData.student_result[i].student_id === user_id) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+            if(assignmentResultData.student_result[i].student_id === user_id) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
         }
 
         const resultSchema = {
@@ -591,7 +590,7 @@ exports.scoreSubmit = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode });
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         if (!class_data.class_assignment_id.includes(assignment_id)) return res.status(404).json({result: 'Not found', message: ''});
 
@@ -639,7 +638,7 @@ exports.comment = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode })
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         if (!class_data.class_assignment_id.includes(assignment_id)) return res.status(404).json({result: 'Not found', message: ''});
         const assignment_data = await Assignments.findById(assignment_id);
@@ -672,13 +671,13 @@ exports.deleteComment = async (req,res) => {
         const user_id = users._id;
         const class_data = await Classes.findOne({ class_code: classcode })
         if (!class_data) return res.status(404).json({result: 'Not found', message: ''});
-        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         if (!class_data.class_assignment_id.includes(assignment_id)) return res.status(404).json({result: 'Not found', message: ''});
         const assignment_data = await Assignments.findById(assignment_id);
         if (!assignment_data) return res.status(404).json({result: 'Not found', message: ''});
 
-        if (assignment_data.comment[comment_index].comment_author_id != user_id) return res.status(403).json({result: 'Forbiden', message: 'access is denied'});
+        if (assignment_data.comment[comment_index].comment_author_id != user_id) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
         assignment_data.comment.splice(comment_index,1);
 

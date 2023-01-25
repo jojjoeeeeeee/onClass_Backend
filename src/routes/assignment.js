@@ -6,7 +6,7 @@ const AssignmentController = require('../controllers/AssignmentController');
 
 router.post('/get', jwt.verify, AssignmentController.get);
 router.post('/get/all', jwt.verify, AssignmentController.getAll);
-router.post('/get/all/notification', jwt.verify, AssignmentController.getAllFromNotification);
+router.get('/get/all/notification', jwt.verify, AssignmentController.getAllFromNotification);
 
 router.post('/create', jwt.verify, AssignmentController.create);
 router.patch('/submit', jwt.verify, AssignmentController.stdSubmit);

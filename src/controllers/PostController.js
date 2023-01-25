@@ -119,7 +119,17 @@ exports.publish = async (req,res) => {
         }
 
         if (post_data.type == 'poll') {
-            postSchema.poll = post_data.poll
+            if (!post_data.poll) return res.status(400).json({result: 'Bad request', message: ''});
+            if (!post_data.poll.length > 0) return res.status(400).json({result: 'Bad request', message: ''});
+            const poll_arr = [] 
+            for (let i = 0 ; i < post_data.poll.length ; i++) {
+                const choice = {
+                    choice_name: post_data.poll[i],
+                    vote: 0
+                }
+                poll_arr.push(choice);
+            }
+            postSchema.poll = poll_arr;
         }
         else if (post_data.type != 'normal') return res.status(400).json({result: 'Bad request', message: ''});
 

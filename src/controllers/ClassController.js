@@ -169,7 +169,7 @@ exports.get = async (req,res) => {
 
             const details = {
                 id: query._id,
-                post_author: [{}],
+                post_author: {},
                 profile_pic: null,
                 type: query.type,
                 post_content: query.post_content,
@@ -187,7 +187,7 @@ exports.get = async (req,res) => {
 
             data.nickname.map(nickKey => {
                 if (nickKey.user_id == query.post_author_id) {
-                    details.post_author = [nickKey];
+                    details.post_author = nickKey;
                 }
             })
             post_data.push(details);

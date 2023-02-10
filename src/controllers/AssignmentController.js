@@ -7,7 +7,7 @@ const Files = require('../models/file_schema');
 const moment = require('moment');
 
 const { classClassCodeValidation, classAssignmentValidation, assignmentValidation } = require('../services/validation');
-const turnIn_status = ['ส่งแล้ว','ส่งช้า','ยังไม่ส่ง','เลยกำหนดส่ง']
+const turnIn_status = ['ส่งแล้ว','ส่งช้า','ได้รับมอบหมาย','เลยกำหนด']
 
 exports.get = async (req,res) => {
     const username = req.username;
@@ -114,10 +114,10 @@ exports.get = async (req,res) => {
             }
 
             if (!already && (now.isBefore(end) || assignment_data.turnin_late)) {
-                status = turnIn_status[2] //ยังไม่ส่ง
+                status = turnIn_status[2] //ได้รับมอบหมาย (ได้รับมอบหมาย)
             }
             else if(!already && now.isAfter(end) && !assignment_data.turnin_late) {
-                status = turnIn_status[3] //เลยกำหนดส่ง
+                status = turnIn_status[3] //เลยกำหนด
             }
 
             const res_assignment_data = {
@@ -301,10 +301,10 @@ exports.getAll = async (req,res) => {
                 const now = moment();
                 const end = moment(query.assignment_end_date);
                 if (!already && (now.isBefore(end) || query.turnin_late)) {
-                    status = turnIn_status[2] //ยังไม่ส่ง
+                    status = turnIn_status[2] //ได้รับมอบหมาย
                 }
                 else if(!already && now.isAfter(end) && !query.turnin_late) {
-                    status = turnIn_status[3] //เลยกำหนดส่ง
+                    status = turnIn_status[3] //เลยกำหนด
                 }
 
                 const details = {
@@ -379,10 +379,10 @@ exports.getAllFromNotification = async (req,res) => {
                 const now = moment();
                 const end = moment(query.assignment_end_date);
                 if (now.isBefore(end) || query.turnin_late) {
-                    status = turnIn_status[2] //ยังไม่ส่ง
+                    status = turnIn_status[2] //ได้รับมอบหมาย
                 }
                 else if(now.isAfter(end) && !query.turnin_late) {
-                    status = turnIn_status[3] //เลยกำหนดส่ง
+                    status = turnIn_status[3] //เลยกำหนด
                 }
 
                 const details = {

@@ -373,7 +373,6 @@ exports.getAllFromNotification = async (req,res) => {
                 const query = await Assignments.findById(data.notification[i].todo_id);
                 const class_data = await Classes.findOne({ class_code: data.notification[i].class_code});
                 var status = ''
-
                 //Status validate
 
                 const now = moment();
@@ -388,6 +387,7 @@ exports.getAllFromNotification = async (req,res) => {
                 const details = {
                     id: query._id,
                     class_name: class_data.class_name,
+                    class_code: class_data.class_code,
                     assignment_name: query.assignment_name,
                     assignment_description: query.assignment_description,
                     score: query.score,

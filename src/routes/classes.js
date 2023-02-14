@@ -12,6 +12,7 @@ router.patch('/edit/roles', jwt.verify, ClassController.editRoles);
 router.patch('/join', jwt.verify, ClassController.join);
 router.patch('/leave', jwt.verify, ClassController.leave);
 router.patch('/nickname', jwt.verify, ClassController.nickname);
+router.get('/class-cover', jwt.verify, ClassController.getClassCover);
 
 router.use('/post', require('./post'));
 router.use('/assignment', require('./assignment'));

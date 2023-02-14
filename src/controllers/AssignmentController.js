@@ -71,6 +71,7 @@ exports.get = async (req,res) => {
             const std_submitResult = {
                 file_result: [],
                 answer_result: '',
+                url_result: '',
                 isLate: false
             }
 
@@ -101,6 +102,7 @@ exports.get = async (req,res) => {
                 std_submitResult.file_result = std_file_arr;
                 std_submitResult.answer_result = assignmentResultData.student_result[std_result_index].answer_result;
                 std_submitResult.isLate = assignmentResultData.student_result[std_result_index].isLate;
+                std_submitResult.url_result = assignmentResultData.student_result[std_result_index].url_result;
             }
 
             //Status validate
@@ -120,6 +122,13 @@ exports.get = async (req,res) => {
                 status = turnIn_status[3] //เลยกำหนด
             }
 
+            var std_score = 0
+            assignmentResultData.student_score.map((assignmentKey) => {
+                if (assignmentKey.student_id == user_id) return std_score = assignmentKey.score
+            });
+
+
+
             const res_assignment_data = {
                 id:assignment_data._id,
                 assignment_name: assignment_data.assignment_name,
@@ -132,6 +141,7 @@ exports.get = async (req,res) => {
                 assignment_end_date: assignment_data.assignment_end_date,
                 can_submit: can_submit,
                 submit_result: std_submitResult,
+                score_result: std_score,
                 status: status,
                 comment: [],
                 role: 'student'
@@ -185,6 +195,7 @@ exports.get = async (req,res) => {
             }
 
             const student_result = []
+            const student_score = []
             const res_assignment_data = {
                 id:assignment_data._id,
                 assignment_name: assignment_data.assignment_name,
@@ -196,6 +207,7 @@ exports.get = async (req,res) => {
                 assignment_start_date: assignment_data.assignment_start_date,
                 assignment_end_date: assignment_data.assignment_end_date,
                 assignment_student_result: student_result,
+                assignment_student_score: student_score,
                 comment: [],
                 role: 'teacher'
             }
@@ -219,10 +231,16 @@ exports.get = async (req,res) => {
                     student_id: key.student_id,
                     file_result: result_file_arr,
                     answer_result: key.answer_result,
+                    url_result: key.url_result,
                     isLate: key.isLate
                 }
+
                 student_result.push(std_submitResult)
             });
+
+            assignmentResultData.student_score.map(key => {
+                student_score.push(key);
+            })
 
             const assignmentComment = []
             for (let i = 0 ; i < assignment_data.comment.length ; i++) {
@@ -553,6 +571,7 @@ exports.stdSubmit = async (req,res) => {
             student_id: user_id,
             file_result: submitResult.file_result,
             answer_result: submitResult.answer_result,
+            url_result: submitResult.url_result,
             isLate: isLate
         }
 

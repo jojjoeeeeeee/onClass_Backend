@@ -1,3 +1,6 @@
+const fs = require('fs-extra');
+const path = require('path');
+
 const Users = require('../models/user_schema');
 const Classes = require('../models/class_schema');
 const Exams = require('../models/exam/examination_schema')
@@ -240,7 +243,8 @@ exports.get = async (req,res) => {
             class_post: post_data,
             class_exam: exam_data,
             class_feed: sorted_feed_data.reverse(),
-            nickname: data.nickname
+            nickname: data.nickname,
+            role: data.teacher_id.includes(user_id) ? 'teacher' : 'student'
         }
 
         const thumbnail = await Files.findById(data.class_thumbnail);
@@ -583,4 +587,31 @@ exports.leave = async (req,res) => {
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
     }
+};
+
+exports.getClassCover = async (req, res) => {
+    const directoryPath = path.join(__dirname, '../../public/img/class-cover');
+
+    fs.readdir(directoryPath, async (err, files) => {
+        if (err) {
+            console.log('Unable to scan directory: ' + err);
+            return res.status(404).json({result: 'Not found', message: '', data: null});
+        }
+        
+        const data_files = []
+        for (const file of files) {
+            const data = await Files.findOne({ file_name: file });
+            if (data) {
+                const class_thumbnail = {
+                    id: data._id,
+                    file_name: file,
+                    file_path: data.file_path
+                }
+                data_files.push(class_thumbnail)
+                console.log(class_thumbnail)
+            }
+        }
+
+        res.status(200).json({result: 'OK', message: 'success get class-thumbnail list', data: data_files});
+    });
 };

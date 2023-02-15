@@ -8,6 +8,11 @@ const Comment = require('../models/comment_model');
 //     created: { type: Date, default: Date.now }
 // }, { _id : false });
 
+const vote_schema = mongoose.Schema({
+    user_id: String,
+    vote: Number,
+}, { _id : false })
+
 const poll_schema = mongoose.Schema({
     choice_name: String,
     vote: Number
@@ -20,6 +25,7 @@ const schema = mongoose.Schema({
     post_content: String,
     post_optional_file: [String],
     poll: [poll_schema],
+    vote_author: [vote_schema],
     comment: [Comment],
     created: { type: Date, default: Date.now }
 });

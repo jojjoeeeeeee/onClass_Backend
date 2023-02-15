@@ -4,6 +4,7 @@ const Posts = require('../models/post_schema');
 const Files = require('../models/file_schema');
 
 const { classPostValidation, classPostCommentValidation, classPostPollVoteValidation } = require('../services/validation');
+const { post } = require('../routes/post');
 
 exports.get = async (req,res) => {
     const username = req.username;
@@ -41,6 +42,16 @@ exports.get = async (req,res) => {
             file_arr.push(file_obj)
         }
 
+        const vote_author = {
+            username: username,
+            vote: -1
+        }
+
+        post_data.vote_author.map(voteAuthor => {
+            if (voteAuthor.user_id === user_id) {
+                vote_author.vote = voteAuthor.vote;
+            }
+        })
 
         const postSchema = {
             id: post_data._id,
@@ -51,6 +62,7 @@ exports.get = async (req,res) => {
             post_content: post_data.post_content,
             post_optional_file: file_arr,
             poll: post_data.poll,
+            vote_author: vote_author,
             comment: [],
             created: post_data.created
         }
@@ -123,6 +135,7 @@ exports.publish = async (req,res) => {
             post_content: post_data.post_content,
             post_optional_file: post_data.post_optional_file,
             poll: [],
+            vote_author: [],
             comment: [],
         }
 
@@ -206,7 +219,21 @@ exports.pollVote = async (req,res) => {
 
         for (let i = 0 ; i < post_data.poll.length ; i++) {
             if (post_data.poll[i].choice_name === choice_name) {
+                
                 post_data.poll[i].vote = post_data.poll[i].vote + 1;
+                const vote_data = {
+                    user_id: user_id,
+                    vote: i
+                }
+                
+                const filtered_vote_author = post_data.vote_author.filter((val, index) => {
+                    if (val.user_id === user_id) {
+                        post_data.poll[index].vote = post_data.poll[index].vote - 1;
+                    }
+                    return val.user_id !== user_id;
+                })
+                filtered_vote_author.push(vote_data);
+                post_data.vote_author = filtered_vote_author;
             }
         }
 

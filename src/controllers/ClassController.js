@@ -170,6 +170,17 @@ exports.get = async (req,res) => {
                 file_arr.push(file_obj)
             }
 
+            const vote_author = {
+                username: username,
+                vote: -1,
+            }
+
+            query.vote_author.map(voteAuthor => {
+                if (voteAuthor.user_id == user_id) {
+                    vote_author.vote = voteAuthor.vote;
+                }
+            })
+            
             const details = {
                 id: query._id,
                 post_author: {},
@@ -178,6 +189,7 @@ exports.get = async (req,res) => {
                 post_content: query.post_content,
                 post_optional_file: file_arr,
                 poll: query.poll,
+                vote_author: vote_author,
                 comment: query.comment.length,
                 created: query.created,
                 moment_sort: moment(query.created)
@@ -207,7 +219,7 @@ exports.get = async (req,res) => {
         }
         for (let i = 0 ; i < post_data.length ; i++) {
             const feed_details = {
-                type: 'post',
+                type: post_data[i].type,
                 data: post_data[i]
             }
             feed_data.push(feed_details)

@@ -219,7 +219,7 @@ exports.get = async (req,res) => {
         }
         for (let i = 0 ; i < post_data.length ; i++) {
             const feed_details = {
-                type: post_data[i].type,
+                type: post_data[i].type === "poll" ? "poll" : "post",
                 data: post_data[i]
             }
             feed_data.push(feed_details)

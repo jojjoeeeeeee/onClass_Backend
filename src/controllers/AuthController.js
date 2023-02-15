@@ -15,6 +15,9 @@ exports.register = async (req,res) => {
 
     try {
         req.body.username = req.body.username.toLowerCase();
+        if(req.body.profile_pic === '') {
+            req.body.profile_pic = '63d15e040c3a5465f722276b'
+        }
         const data = await Users.create(req.body);
         res.status(200).json({ result: 'OK', message: 'success create account'});
     } catch (e) {

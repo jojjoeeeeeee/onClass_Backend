@@ -456,15 +456,9 @@ exports.join = async (req,res) => {
         if (!query) return res.status(404).json({result: 'Not found', message: ''});
         if (query.teacher_id.includes(user_id) || query.student_id.includes(user_id)) return res.status(200).json({result: 'nOK', message: 'failed you already joned'});
 
-        var student_id = query.student_id;
-        student_id.push(user_id);
+        query.student_id.push(user_id);
         
-        const new_data = query;
-        new_data.student_id = student_id;
-
-        const data = await Classes.findOneAndUpdate({ class_code: classcode }, new_data);
-
-        var nickname = data.nickname;
+        var nickname = query.nickname;
         var alreadyNicknamed = false
         const nickname_form = {
             user_id: user_id,
@@ -473,7 +467,7 @@ exports.join = async (req,res) => {
             optional_name: optional_name
         }
 
-        data.nickname.map((key,index) => {
+        query.nickname.map((key,index) => {
             if (key.user_id == user_id) {
                 nickname[index] = nickname_form
                 alreadyNicknamed = true
@@ -484,10 +478,11 @@ exports.join = async (req,res) => {
             nickname.push(nickname_form)
         }
         
-        const new_class_nickname_data = data;
-        new_class_nickname_data.nickname = nickname;
+        const data = query;
+        data.student_id = query.student_id
+        data.nickname = nickname;
 
-        const new_class_data = await Classes.findOneAndUpdate({ class_code: classcode }, new_class_nickname_data);
+        const new_class_data = await Classes.findOneAndUpdate({ class_code: classcode }, data);
 
         const query_user = await Users.findById(user_id);
         
@@ -508,7 +503,6 @@ exports.join = async (req,res) => {
             }
             query_user.notification.push(notificationSchema);
         }
-        
         const data_user = await Users.findByIdAndUpdate(user_id, query_user);
         
         res.status(200).json({result: 'OK', message: 'success join class'});

@@ -6,10 +6,18 @@ type Poll {
     vote: Int
 }
 
+type CommentAuthor {
+    user_id: String
+    firstname: String
+    lastname: String
+    optional_name: String
+}
+
 type Comment {
-    comment_author_id: String
+    comment_author: CommentAuthor
+    profile_pic: String
     content: String
-    created: String
+    create: String
 }
 
 type VoteAuthor {
@@ -32,19 +40,21 @@ type File {
 
 type Post {
     id: ID!
+    class_code: String
     post_author: PostAuthor
     profile_pic: String
     type: String!
     post_content: String
-    post_optional_file: [String]
+    post_optional_file: [File]
     poll: [Poll]
-    vote_author: VoteAuthor
+    vote_author: [VoteAuthor]
     comment: [Comment]
     created: String
 }
 
 type Assignment {
     id: ID!
+    class_code: String!
     assignment_name: String!
     assignment_description: String!
     turnin_late: Boolean!
@@ -52,7 +62,7 @@ type Assignment {
     symbol_score: [String]
     score: Float,
     assignment_optional_file: [File],
-    comment: Int,
+    comment: [Comment],
     assignment_start_date: String,
     assignment_end_date: String,
 }
@@ -64,12 +74,29 @@ type Feed {
     data: JSON
 }
 
+type AssignmentComment {
+    id: ID!
+    comment: [Comment]
+}
+
 type Query {
     feeds(class_code: String!): [Feed!]!
+    singlePost(class_code: String!, post_id: String!): Post!
+    singleAssignment(class_code: String!, assignment_id: String!): Assignment!
+}
+
+type singlePost {
+    singlePost: Post!
+}
+
+type singleAssignment {
+    singleAssignment: AssignmentComment!
 }
 
 type Subscription {
     feeds(class_code: String!): [Feed!]!
+    onPostUpdate(class_code: String!, post_id: String!): singlePost!
+    onAssignmentUpdate(class_code: String!, assignment_id: String!): singleAssignment!
 }
 `
 

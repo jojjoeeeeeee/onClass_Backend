@@ -63,14 +63,41 @@ const feeds = async (parent, args, req) => {
     }
 }
 
-// const singlePost = async postId => {
-//     try {
-//         const post = await feedLoader.load(postId.toString());
-//         return post
-//     } catch (e) {
-//         throw e;
-//     }
-// };
+const singlePost = async (parent, args, req) => {
+    const username = req.username;
+
+    try {
+        const users = await Users.findOne({ username: username })
+        if (!users) return [];
+        const user_id = users._id;
+        const class_data = await Classes.findOne({ class_code: args.class_code })
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return [];
+
+        const post = await Posts.findById(args.post_id)
+
+        return transformSinglePost(post, class_data)
+    } catch (err) {
+        throw err;
+    }
+};
+
+const singleAssignment = async (parent, args, req) => {
+    const username = req.username;
+
+    try {
+        const users = await Users.findOne({ username: username })
+        if (!users) return [];
+        const user_id = users._id;
+        const class_data = await Classes.findOne({ class_code: args.class_code })
+        if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return [];
+
+        const assignment = await Assignments.findById(args.assignment_id)
+
+        return transformSingleAssignment(assignment, class_data)
+    } catch (err) {
+        throw err;
+    }
+};
 
 
 const transformPost = async (username, users, post, class_data) => {
@@ -162,4 +189,122 @@ const transformAssignment = async ( assignment ) => {
     return details
 };
 
+const transformSinglePost = async (post, class_data) => {
+
+    const file_arr = [];
+    for(let j = 0; j < post.post_optional_file.length; j++){
+        const file_data = await Files.findById(post.post_optional_file[j]);
+        if(!file_data) return [];
+        const file_obj = {
+            file_name: file_data.file_name,
+            file_extension: file_data.filename_extension,
+            file_path: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/api/file/download/${file_data._id}`
+        }
+        file_arr.push(file_obj)
+    }
+
+    const vote_author = []
+    for (let i = 0 ; i < class_data.nickname.length ; i++) {
+        for (let j = 0 ; j < post.vote_author.length ; j ++) {
+            if (class_data.nickname[i].user_id === post.vote_author[j].user_id) {
+                const this_user = await Users.findById(post.vote_author[j].user_id)
+                vote_author.push(Object.assign({}, {
+                    username: this_user.username,
+                    vote: post.vote_author[j].vote
+                }))
+            }
+        }
+    }
+
+    const details = {
+        id: post._id,
+        class_code: post.class_code,
+        post_author: null,
+        profile_pic: null,
+        type: post.type,
+        post_content: post.post_content,
+        post_optional_file: file_arr,
+        poll: post.poll,
+        vote_author: vote_author,
+        comment: [],
+        created: post.created,
+    }
+
+    class_data.nickname.map(nickKey => {
+        if (nickKey.user_id == post.post_author_id) {
+            details.post_author = nickKey;
+        }
+    })
+
+    const post_author_user = await Users.findById(post.post_author_id)
+    const profile_pic = await Files.findById(post_author_user.profile_pic);
+    if (profile_pic !== null && profile_pic !== '') {
+        details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+    }
+
+    const postComment = []
+        for (let i = 0 ; i < post.comment.length ; i++) {
+            const commentSchema = {
+                comment_author: null,
+                profile_pic: null,
+                content: post.comment[i].content,
+                create: post.comment[i].created
+            }
+
+            class_data.nickname.map(nickKey => {
+                if (nickKey.user_id == post.comment[i].comment_author_id) {
+                    commentSchema.comment_author = nickKey;
+                }
+            })
+
+            const query = await Users.findById(post.comment[i].comment_author_id);
+            const comment_profile_pic = await Files.findById(query.profile_pic);
+            if (comment_profile_pic !== null && comment_profile_pic !== '') {
+                commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
+            }
+            postComment.push(commentSchema);
+        }
+
+        details.comment = postComment;
+
+    return details
+};
+
+const transformSingleAssignment = async (assignment, class_data) => {
+
+    const details = {
+        id: assignment.id,
+        comment: [],
+    }
+
+    const assignmentComment = []
+        for (let i = 0 ; i < assignment.comment.length ; i++) {
+            const commentSchema = {
+                comment_author: null,
+                profile_pic: null,
+                content: assignment.comment[i].content,
+                create: assignment.comment[i].created
+            }
+
+            class_data.nickname.map(nickKey => {
+                if (nickKey.user_id == assignment.comment[i].comment_author_id) {
+                    commentSchema.comment_author = nickKey;
+                }
+            })
+
+            const query = await Users.findById(assignment.comment[i].comment_author_id);
+            const comment_profile_pic = await Files.findById(query.profile_pic);
+            if (comment_profile_pic !== null && comment_profile_pic !== '') {
+                commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
+            }
+            assignmentComment.push(commentSchema);
+        }
+
+        details.comment = assignmentComment;
+
+    return details
+};
+
 exports.feeds = feeds;
+exports.singlePost = singlePost;
+exports.singleAssignment = singleAssignment;

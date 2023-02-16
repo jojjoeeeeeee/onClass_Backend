@@ -12,7 +12,6 @@ const makeExecutableSchema =
 const ws = require("ws");
 const useServer = require("graphql-ws/lib/use/ws").useServer;
 
-// const graphQlSchema = require("./src/graphql/schema/index");
 const typeDefs = require("./src/graphql/schema/index").typeDefs;
 const resolvers = require("./src/graphql/resolvers/index").resolvers;
 

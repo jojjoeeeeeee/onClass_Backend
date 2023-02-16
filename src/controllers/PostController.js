@@ -4,7 +4,7 @@ const Posts = require('../models/post_schema');
 const Files = require('../models/file_schema');
 
 const pubsub = require('../graphql/pubsub');
-const { feeds } = require('../graphql/resolvers/merge_feed');
+const { feeds, singlePost } = require('../graphql/resolvers/merge_feed');
 
 const { classPostValidation, classPostCommentValidation, classPostPollVoteValidation } = require('../services/validation');
 
@@ -58,8 +58,8 @@ exports.get = async (req,res) => {
 
         const postSchema = {
             id: post_data._id,
-            class_code: post_data.classcode,
-            post_author: {},
+            class_code: post_data.class_code,
+            post_author: null,
             profile_pic: null,
             type: post_data.type,
             post_content: post_data.post_content,
@@ -85,7 +85,7 @@ exports.get = async (req,res) => {
         const postComment = []
         for (let i = 0 ; i < post_data.comment.length ; i++) {
             const commentSchema = {
-                comment_author: {},
+                comment_author: null,
                 profile_pic: null,
                 content: post_data.comment[i].content,
                 create: post_data.comment[i].created
@@ -254,6 +254,13 @@ exports.pollVote = async (req,res) => {
         pubsub.publish('FEED_UPDATED', {
             feeds: feed_data,
           });
+
+          const singlePost_data = await singlePost('', { class_code: classcode, post_id }, { username: username })
+          pubsub.publish('POST_UPDATED', {
+              onPostUpdate: {
+                  singlePost: singlePost_data
+              },
+            });
         res.status(200).json({result: 'OK', message: 'success post vote poll'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
@@ -293,6 +300,12 @@ exports.comment = async (req,res) => {
         const feed_data = await feeds('', { class_code: classcode }, { username: username })
         pubsub.publish('FEED_UPDATED', {
             feeds: feed_data,
+          });
+        const singlePost_data = await singlePost('', { class_code: classcode, post_id }, { username: username })
+        pubsub.publish('POST_UPDATED', {
+            onPostUpdate: {
+                singlePost: singlePost_data
+            },
           });
         res.status(200).json({result: 'OK', message: 'success add comment'});
     } catch (e) {

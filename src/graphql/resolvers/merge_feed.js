@@ -88,17 +88,18 @@ const transformPost = async (username, users, post, class_data) => {
         file_arr.push(file_obj)
     }
 
-    const vote_author = {
-        username: username,
-        vote: -1,
-    }
-
-    post.vote_author.map(voteAuthor => {
-        if (voteAuthor.user_id == user_id) {
-            return vote_author.vote = voteAuthor.vote;
+    const vote_author = []
+    for (let i = 0 ; i < class_data.nickname.length ; i++) {
+        for (let j = 0 ; j < post.vote_author.length ; j ++) {
+            if (class_data.nickname[i].user_id === post.vote_author[j].user_id) {
+                const this_user = await Users.findById(post.vote_author[j].user_id)
+                vote_author.push(Object.assign({}, {
+                    username: this_user.username,
+                    vote: post.vote_author[j].vote
+                }))
+            }
         }
-    })
-
+    }
 
     const details = {
         id: post._id,
@@ -108,7 +109,7 @@ const transformPost = async (username, users, post, class_data) => {
         post_content: post.post_content,
         post_optional_file: file_arr,
         poll: post.poll,
-        vote_author: vote_author.vote > -1 ? vote_author : null,
+        vote_author: vote_author,
         comment: post.comment.length,
         created: post.created,
         moment_sort: moment(post.created)
@@ -120,7 +121,8 @@ const transformPost = async (username, users, post, class_data) => {
         }
     })
 
-    const profile_pic = await Files.findById(users.profile_pic);
+    const post_author_user = await Users.findById(post.post_author_id)
+    const profile_pic = await Files.findById(post_author_user.profile_pic);
     if (profile_pic !== null && profile_pic !== '') {
         details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
     }

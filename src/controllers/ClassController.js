@@ -170,16 +170,17 @@ exports.get = async (req,res) => {
                 file_arr.push(file_obj)
             }
 
-            const vote_author = {
-                username: username,
-                vote: -1,
-            }
+            const vote_author = []
+            // const vote_author = {
+            //     username: username,
+            //     vote: -1,
+            // }
 
-            query.vote_author.map(voteAuthor => {
-                if (voteAuthor.user_id == user_id) {
-                    vote_author.vote = voteAuthor.vote;
-                }
-            })
+            // query.vote_author.map(voteAuthor => {
+            //     if (voteAuthor.user_id == user_id) {
+            //         vote_author.vote = voteAuthor.vote;
+            //     }
+            // })
             
             const details = {
                 id: query._id,

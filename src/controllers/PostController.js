@@ -44,16 +44,17 @@ exports.get = async (req,res) => {
             file_arr.push(file_obj)
         }
 
-        const vote_author = {
-            username: username,
-            vote: -1
-        }
+        const vote_author = []
+        // const vote_author = {
+        //     username: username,
+        //     vote: -1
+        // }
 
-        post_data.vote_author.map(voteAuthor => {
-            if (voteAuthor.user_id === user_id) {
-                vote_author.vote = voteAuthor.vote;
-            }
-        })
+        // post_data.vote_author.map(voteAuthor => {
+        //     if (voteAuthor.user_id === user_id) {
+        //         vote_author.vote = voteAuthor.vote;
+        //     }
+        // })
 
         const postSchema = {
             id: post_data._id,
@@ -165,7 +166,7 @@ exports.publish = async (req,res) => {
         pubsub.publish('FEED_UPDATED', {
             feeds: feed_data,
           });
-                    
+
         res.status(200).json({result: 'OK', message: 'success publish post'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

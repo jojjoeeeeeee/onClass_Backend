@@ -41,7 +41,8 @@ app.use(helmet({
 // app.use(helmet.xssFilter());
 
 const corsOptions = {
-  origin: "http://ec2-54-255-229-73.ap-southeast-1.compute.amazonaws.com",
+  // origin: "http://ec2-54-255-229-73.ap-southeast-1.compute.amazonaws.com",
+  origin: "http://locahost:3000",
   methods: "GET, HEAD, PUT, PATCH, POST, DELETE",
   preflightContinue: false,
   optionsSuccessStatus: 204,

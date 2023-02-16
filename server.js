@@ -22,22 +22,22 @@ const jwt = require("./src/jwt");
 require("dotenv").config({ path: "./src/.env" });
 
 //prod
-// app.use(helmet());
+app.use(helmet());
 
 //test graphqli
-app.use(helmet.crossOriginOpenerPolicy());
-app.use(helmet.crossOriginResourcePolicy());
-app.use(helmet.dnsPrefetchControl());
-app.use(helmet.expectCt());
-app.use(helmet.frameguard());
-app.use(helmet.hidePoweredBy());
-app.use(helmet.hsts());
-app.use(helmet.ieNoOpen());
-app.use(helmet.noSniff());
-app.use(helmet.originAgentCluster());
-app.use(helmet.permittedCrossDomainPolicies());
-app.use(helmet.referrerPolicy());
-app.use(helmet.xssFilter());
+// app.use(helmet.crossOriginOpenerPolicy());
+// app.use(helmet.crossOriginResourcePolicy());
+// app.use(helmet.dnsPrefetchControl());
+// app.use(helmet.expectCt());
+// app.use(helmet.frameguard());
+// app.use(helmet.hidePoweredBy());
+// app.use(helmet.hsts());
+// app.use(helmet.ieNoOpen());
+// app.use(helmet.noSniff());
+// app.use(helmet.originAgentCluster());
+// app.use(helmet.permittedCrossDomainPolicies());
+// app.use(helmet.referrerPolicy());
+// app.use(helmet.xssFilter());
 
 const corsOptions = {
   origin: "http://ec2-54-255-229-73.ap-southeast-1.compute.amazonaws.com",

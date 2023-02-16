@@ -680,6 +680,12 @@ exports.comment = async (req,res) => {
         assignment_data.comment.push(Comment);
 
         await Assignments.findByIdAndUpdate(assignment_id, assignment_data);
+
+
+        const feed_data = await feeds('', { class_code: classcode }, { username: username })
+        pubsub.publish('FEED_UPDATED', {
+            feeds: feed_data,
+          });
         res.status(200).json({result: 'OK', message: 'success add comment'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

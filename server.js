@@ -22,7 +22,9 @@ const jwt = require("./src/jwt");
 require("dotenv").config({ path: "./src/.env" });
 
 //prod
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: false
+}));
 
 //test graphqli
 // app.use(helmet.crossOriginOpenerPolicy());

@@ -3,8 +3,10 @@ const Classes = require('../models/class_schema');
 const Posts = require('../models/post_schema');
 const Files = require('../models/file_schema');
 
+const pubsub = require('../graphql/pubsub');
+const { feeds } = require('../graphql/resolvers/merge_feed');
+
 const { classPostValidation, classPostCommentValidation, classPostPollVoteValidation } = require('../services/validation');
-const { post } = require('../routes/post');
 
 exports.get = async (req,res) => {
     const username = req.username;
@@ -158,6 +160,12 @@ exports.publish = async (req,res) => {
         class_data.class_post_id.push(post_created._id);
 
         await Classes.findOneAndUpdate({class_code: classcode}, class_data);
+
+        const feed_data = await feeds('', { class_code: classcode }, { username: username })
+        pubsub.publish('FEED_UPDATED', {
+            feeds: feed_data,
+          });
+                    
         res.status(200).json({result: 'OK', message: 'success publish post'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

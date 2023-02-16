@@ -227,7 +227,7 @@ const transformSinglePost = async (post, class_data) => {
         poll: post.poll,
         vote_author: vote_author,
         comment: [],
-        created: new Date(post.created),
+        created: new Date(post.created).toString(),
     }
 
     class_data.nickname.map(nickKey => {
@@ -248,7 +248,7 @@ const transformSinglePost = async (post, class_data) => {
                 comment_author: null,
                 profile_pic: null,
                 content: post.comment[i].content,
-                create: new Date(post.comment[i].created)
+                create: new Date(post.comment[i].created).toString()
             }
 
             class_data.nickname.map(nickKey => {
@@ -283,7 +283,7 @@ const transformSingleAssignment = async (assignment, class_data) => {
                 comment_author: null,
                 profile_pic: null,
                 content: assignment.comment[i].content,
-                create: new Date(assignment.comment[i].created)
+                create: new Date(assignment.comment[i].created).toString()
             }
 
             class_data.nickname.map(nickKey => {

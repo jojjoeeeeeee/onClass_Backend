@@ -7,7 +7,7 @@ const Files = require('../models/file_schema');
 const moment = require('moment');
 
 const pubsub = require('../graphql/pubsub');
-const { feeds } = require('../graphql/resolvers/merge_feed');
+const { feeds, singleAssignment} = require('../graphql/resolvers/merge_feed');
 
 const { classClassCodeValidation, classAssignmentValidation, assignmentValidation } = require('../services/validation');
 const turnIn_status = ['ส่งแล้ว','ส่งช้า','ได้รับมอบหมาย','เลยกำหนด']
@@ -686,6 +686,12 @@ exports.comment = async (req,res) => {
         pubsub.publish('FEED_UPDATED', {
             feeds: feed_data,
           });
+          const singleAsm_data = await singleAssignment('', { class_code: classcode, assignment_id }, { username: username })
+          pubsub.publish('ASSIGNMENT_UPDATED', {
+              onAssignmentUpdate: {
+                  singleAssignment: singleAsm_data
+              },
+            });
         res.status(200).json({result: 'OK', message: 'success add comment'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

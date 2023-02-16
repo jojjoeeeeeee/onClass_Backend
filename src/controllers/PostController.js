@@ -245,8 +245,15 @@ exports.pollVote = async (req,res) => {
                 post_data.vote_author = filtered_vote_author;
             }
         }
+        
 
         await Posts.findByIdAndUpdate(post_id, post_data);
+
+
+        const feed_data = await feeds('', { class_code: classcode }, { username: username })
+        pubsub.publish('FEED_UPDATED', {
+            feeds: feed_data,
+          });
         res.status(200).json({result: 'OK', message: 'success post vote poll'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});
@@ -282,6 +289,11 @@ exports.comment = async (req,res) => {
         post_data.comment.push(Comment);
 
         await Posts.findByIdAndUpdate(post_id, post_data);
+
+        const feed_data = await feeds('', { class_code: classcode }, { username: username })
+        pubsub.publish('FEED_UPDATED', {
+            feeds: feed_data,
+          });
         res.status(200).json({result: 'OK', message: 'success add comment'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

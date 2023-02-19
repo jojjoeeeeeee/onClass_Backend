@@ -167,10 +167,11 @@ exports.get = async (req,res) => {
 
                 const query = await Users.findById(assignment_data.comment[i].comment_author_id);
                 
-                const comment_profile_pic = await Files.findById(query.profile_pic);
-                if (comment_profile_pic !== null && comment_profile_pic !== '') {
-                    commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
-                }
+                // const comment_profile_pic = await Files.findById(query.profile_pic);
+                // if (comment_profile_pic !== null && comment_profile_pic !== '') {
+                //     commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
+                // }
+                commentSchema.profile_pic = query.profile_pic;
                 assignmentComment.push(commentSchema);
                 
             }

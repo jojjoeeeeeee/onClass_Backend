@@ -55,12 +55,13 @@ exports.get = async (req,res) => {
         //         vote_author.vote = voteAuthor.vote;
         //     }
         // })
+        const author = await Users.findById(post_data.post_author_id);
 
         const postSchema = {
             id: post_data._id,
             class_code: post_data.class_code,
             post_author: null,
-            profile_pic: null,
+            profile_pic: author.profile_pic,
             type: post_data.type,
             post_content: post_data.post_content,
             post_optional_file: file_arr,
@@ -70,11 +71,10 @@ exports.get = async (req,res) => {
             created: post_data.created
         }
 
-        const author = await Users.findById(post_data.post_author_id);
-        const profile_pic = await Files.findById(author.profile_pic);
-        if (profile_pic !== null && profile_pic !== '') {
-            postSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
-        }
+        // const profile_pic = await Files.findById(author.profile_pic);
+        // if (profile_pic !== null && profile_pic !== '') {
+        //     postSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+        // }
        
         class_data.nickname.map(nickKey => {
             if (nickKey.user_id == post_data.post_author_id) {
@@ -98,10 +98,11 @@ exports.get = async (req,res) => {
             })
 
             const query = await Users.findById(post_data.comment[i].comment_author_id);
-            const comment_profile_pic = await Files.findById(query.profile_pic);
-            if (comment_profile_pic !== null && comment_profile_pic !== '') {
-                commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
-            }
+            // const comment_profile_pic = await Files.findById(query.profile_pic);
+            // if (comment_profile_pic !== null && comment_profile_pic !== '') {
+            //     commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
+            // }
+            commentSchema.profile_pic = query.profile_pic;
             postComment.push(commentSchema);
         }
 

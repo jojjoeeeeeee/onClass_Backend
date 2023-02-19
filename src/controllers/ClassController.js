@@ -33,14 +33,16 @@ exports.getAll = async (req,res) => {
                 email: query_first_teacher.email,
                 name: query_first_teacher.name,
                 optional_contact: query_first_teacher.optional_contact,
-                profile_pic: null
+                profile_pic: query_first_teacher.profile_pic
             }
 
-            const profile_pic = await Files.findById(query_first_teacher.profile_pic);
-            if (profile_pic !== null && profile_pic !== '') {
-                first_teacher_details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
-            }
-
+            // const profile_pic = await Files.findById(query_first_teacher.profile_pic);
+            // if (profile_pic !== null && profile_pic !== '') {
+            //     first_teacher_details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+            // } else {
+            //     first_teacher_details.profile_pic = query_first_teacher.profile_pic;
+            // }
+    
             const class_details = {
                 class_code: data.class_code,
                 class_name: data.class_name,
@@ -88,13 +90,15 @@ exports.get = async (req,res) => {
                 email: query.email,
                 name: query.name,
                 optional_contact: query.optional_contact,
-                profile_pic: null
+                profile_pic: query.profile_pic
             }
             
-            const profile_pic = await Files.findById(query.profile_pic);
-            if (profile_pic !== null && profile_pic !== '') {
-                details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
-            }
+            // const profile_pic = await Files.findById(query.profile_pic);
+            // if (profile_pic !== null && profile_pic !== '') {
+            //     details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+            // } else {
+            //     details.profile_pic = query.profile_pic;
+            // }
             teacher_data.push(details);
             
             
@@ -110,13 +114,13 @@ exports.get = async (req,res) => {
                 email: query.email,
                 name: query.name,
                 optional_contact: query.optional_contact,
-                profile_pic: null
+                profile_pic: query.profile_pic
             }
 
-            const profile_pic = await Files.findById(query.profile_pic);
-            if (profile_pic !== null && profile_pic !== '') {
-                details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
-            }
+            // const profile_pic = await Files.findById(query.profile_pic);
+            // if (profile_pic !== null && profile_pic !== '') {
+            //     details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+            // }
             student_data.push(details);
         }
 
@@ -185,7 +189,7 @@ exports.get = async (req,res) => {
             const details = {
                 id: query._id,
                 post_author: {},
-                profile_pic: null,
+                profile_pic: user_query.profile_pic,
                 type: query.type,
                 post_content: query.post_content,
                 post_optional_file: file_arr,
@@ -196,10 +200,10 @@ exports.get = async (req,res) => {
                 moment_sort: moment(query.created)
             }
 
-            const profile_pic = await Files.findById(user_query.profile_pic);
-            if (profile_pic !== null && profile_pic !== '') {
-                details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
-            }
+            // const profile_pic = await Files.findById(user_query.profile_pic);
+            // if (profile_pic !== null && profile_pic !== '') {
+            //     details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+            // }
 
             data.nickname.map(nickKey => {
                 if (nickKey.user_id == query.post_author_id) {

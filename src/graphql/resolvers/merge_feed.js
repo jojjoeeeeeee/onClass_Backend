@@ -127,11 +127,11 @@ const transformPost = async (username, users, post, class_data) => {
             }
         }
     }
-
+    const post_author_user = await Users.findById(post.post_author_id)
     const details = {
         id: post._id,
         post_author: null,
-        profile_pic: null,
+        profile_pic: post_author_user.profile_pic,
         type: post.type,
         post_content: post.post_content,
         post_optional_file: file_arr,
@@ -148,11 +148,10 @@ const transformPost = async (username, users, post, class_data) => {
         }
     })
 
-    const post_author_user = await Users.findById(post.post_author_id)
-    const profile_pic = await Files.findById(post_author_user.profile_pic);
-    if (profile_pic !== null && profile_pic !== '') {
-        details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
-    }
+    // const profile_pic = await Files.findById(post_author_user.profile_pic);
+    // if (profile_pic !== null && profile_pic !== '') {
+    //     details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+    // }
 
     return details
 };
@@ -215,12 +214,13 @@ const transformSinglePost = async (post, class_data) => {
             }
         }
     }
+    const post_author_user = await Users.findById(post.post_author_id)
 
     const details = {
         id: post._id,
         class_code: post.class_code,
         post_author: null,
-        profile_pic: null,
+        profile_pic: post_author_user.profile_pic,
         type: post.type,
         post_content: post.post_content,
         post_optional_file: file_arr,
@@ -236,11 +236,10 @@ const transformSinglePost = async (post, class_data) => {
         }
     })
 
-    const post_author_user = await Users.findById(post.post_author_id)
-    const profile_pic = await Files.findById(post_author_user.profile_pic);
-    if (profile_pic !== null && profile_pic !== '') {
-        details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
-    }
+    // const profile_pic = await Files.findById(post_author_user.profile_pic);
+    // if (profile_pic !== null && profile_pic !== '') {
+    //     details.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${profile_pic.file_path}`
+    // }
 
     const postComment = []
         for (let i = 0 ; i < post.comment.length ; i++) {

@@ -257,10 +257,11 @@ const transformSinglePost = async (post, class_data) => {
             })
 
             const query = await Users.findById(post.comment[i].comment_author_id);
-            const comment_profile_pic = await Files.findById(query.profile_pic);
-            if (comment_profile_pic !== null && comment_profile_pic !== '') {
-                commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
-            }
+            commentSchema.profile_pic = query.profile_pic;
+            // const comment_profile_pic = await Files.findById(query.profile_pic);
+            // if (comment_profile_pic !== null && comment_profile_pic !== '') {
+            //     commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
+            // }
             postComment.push(commentSchema);
         }
 
@@ -292,10 +293,11 @@ const transformSingleAssignment = async (assignment, class_data) => {
             })
 
             const query = await Users.findById(assignment.comment[i].comment_author_id);
-            const comment_profile_pic = await Files.findById(query.profile_pic);
-            if (comment_profile_pic !== null && comment_profile_pic !== '') {
-                commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
-            }
+            commentSchema.profile_pic = query.profile_pic;
+            // const comment_profile_pic = await Files.findById(query.profile_pic);
+            // if (comment_profile_pic !== null && comment_profile_pic !== '') {
+            //     commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
+            // }
             assignmentComment.push(commentSchema);
         }
 

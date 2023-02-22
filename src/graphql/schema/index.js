@@ -79,10 +79,29 @@ type AssignmentComment {
     comment: [Comment]
 }
 
+type GradeScore {
+    id: ID!
+    type: String!
+    title: String!
+    score: Float!
+    max_score: Float!
+    percentage: Float!
+}
+
+type GradeStudent {
+    id: ID!
+    firstname: String!
+    lastname: String!
+    optional_name: String!
+    assignment: [GradeScore]
+    exam: [GradeScore]
+}
+
 type Query {
     feeds(class_code: String!): [Feed!]!
     singlePost(class_code: String!, post_id: String!): Post!
     singleAssignment(class_code: String!, assignment_id: String!): Assignment!
+    grades(class_code: String!): [GradeStudent]
 }
 
 type singlePost {

@@ -353,9 +353,9 @@ exports.getAll = async (req,res) => {
 
                 //Submit Amount Validate
                 const assignmentResultData = await AssignmentResults.findOne({ assignment_id : query._id});
-                const student_submit_amont = assignmentResultData.student_result.length
+                const student_submit_amount = assignmentResultData.student_result.length
                 const student_amount = class_data.student_id.length;
-                const status = `${student_submit_amont}/${student_amount}`
+                const status = `${student_submit_amount}/${student_amount}`
     
                 const details = {
                     id: query._id,

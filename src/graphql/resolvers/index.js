@@ -1,4 +1,5 @@
 const feedsResolver = require('./feeds');
+const gradesResolver = require('./grades');
 const pubsub = require('../pubsub');
 const withFilter = require('graphql-subscriptions').withFilter;
 
@@ -32,6 +33,7 @@ const resolvers = {
         feeds: async (parent, args, req) => feedsResolver.feeds(parent, args, req),
         singlePost: async (parent, args, req) => feedsResolver.singlePost(parent, args, req),
         singleAssignment: async (parent, args, req) => feedsResolver.singleAssignment(parent, args, req),
+        grades: async (parent, args, req) => gradesResolver.grades(parent, args, req),
     }
 };
 

@@ -16,6 +16,8 @@ const schema = mongoose.Schema({
     exam_name: String,
     exam_description: {type: String, default: ''},
     author: String,
+    is_symbol_score: Boolean,
+    symbol_score: [String],
     optional_setting: {
         random_question: {type: Boolean, default: false},
         random_choice: {type: Boolean, default: false},

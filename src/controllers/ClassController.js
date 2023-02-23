@@ -199,7 +199,7 @@ exports.get = async (req,res) => {
                     id: i,
                     choice_name: query.poll[i].choice_name,
                     vote: query.poll[i].vote,
-                    percentage: sum === 0 ? 0 : Math.floor((query.poll[i].vote / sum) * 100)
+                    percentage: sum === 0 ? 0 : Math.round((query.poll[i].vote / sum) * 100)
                 }
                 poll_arr.push(poll_data)
             }

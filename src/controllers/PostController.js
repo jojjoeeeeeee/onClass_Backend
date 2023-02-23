@@ -68,7 +68,7 @@ exports.get = async (req,res) => {
                 id: i,
                 choice_name: post_data.poll[i].choice_name,
                 vote: post_data.poll[i].vote,
-                percentage: sum === 0 ? 0 : Math.floor((post_data.poll[i].vote / sum) * 100)
+                percentage: sum === 0 ? 0 : Math.round((post_data.poll[i].vote / sum) * 100)
             }
             poll_arr.push(poll_data)
         }

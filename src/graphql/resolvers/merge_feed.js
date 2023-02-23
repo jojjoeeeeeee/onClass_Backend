@@ -145,7 +145,7 @@ const transformPost = async (username, users, post, class_data) => {
             id: i,
             choice_name: post.poll[i].choice_name,
             vote: post.poll[i].vote,
-            percentage: sum === 0 ? 0 : Math.floor((post.poll[i].vote / sum) * 100)
+            percentage: sum === 0 ? 0 : Math.round((post.poll[i].vote / sum) * 100)
         }
         poll_arr.push(poll_data)
     }
@@ -249,7 +249,7 @@ const transformSinglePost = async (post, class_data) => {
             id: i,
             choice_name: post.poll[i].choice_name,
             vote: post.poll[i].vote,
-            percentage: sum === 0 ? 0 : Math.floor((post.poll[i].vote / sum) * 100)
+            percentage: sum === 0 ? 0 : Math.round((post.poll[i].vote / sum) * 100)
         }
         poll_arr.push(poll_data)
     }

@@ -35,6 +35,7 @@ exports.loginSession = async (req,res) => {
         const user_id = users._id;
         const data = await Users.findById(user_id);
         const userSchema = {
+            user_id,
             username: data.username,
             email: data.email,
             profile_pic: data.profile_pic,

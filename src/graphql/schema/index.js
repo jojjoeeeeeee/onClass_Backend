@@ -82,7 +82,7 @@ type AssignmentComment {
 }
 
 type GradeScore {
-    id: ID!
+    grade_id: String!
     type: String!
     title: String!
     score: Float!
@@ -91,7 +91,7 @@ type GradeScore {
 }
 
 type GradeStudent {
-    id: ID!
+    student_id: ID!
     firstname: String!
     lastname: String!
     optional_name: String!

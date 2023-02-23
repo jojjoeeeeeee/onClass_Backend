@@ -21,7 +21,7 @@ const grades = async (parent, args, req) => {
 
         for (let i = 0 ; i < class_data.student_id.length ; i++) {
             const student = {
-                id: class_data.student_id[i],
+                student_id: class_data.student_id[i],
                 firstname: null,
                 lastname: null,
                 optional_name: null,
@@ -88,7 +88,7 @@ const transformAssignment = async (class_data, student_id) => {
                 }
             }
             const details = {
-                id: query._id,
+                grade_id: query._id,
                 type: 'assignment',
                 title: query.assignment_name,
                 score: score,
@@ -116,13 +116,16 @@ const transformExam = async (class_data, student_id) => {
 
             const score = 0
             for (let j = 0 ; j < examResultData.student_score.length ; j++) {
-                if (examResultData.student_score[i].student_id === student_id) {
-                    score = examResultData.student_score[i].sum_score
+                if (examResultData.student_score[j].student_id === student_id) {
+                    score = examResultData.student_score[j].sum_score
+                    break;
+                } else {
+                    score = 0
                 }
             }
 
             const details = {
-                id: query._id,
+                grade_id: query._id,
                 type: 'exam',
                 title: query.exam_name,
                 score: score,

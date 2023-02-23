@@ -34,9 +34,39 @@ const grades = async (parent, args, req) => {
             student.lastname = studentData.lastname;
             student.optional_name = studentData.optional_name;
 
-            const assignmentData = await transformAssignment(class_data, class_data.student_id[i]);
-            student.assignment = assignmentData;
+            // const assignmentData = await transformAssignment(class_data, class_data.student_id[i]);
+            // student.assignment = assignmentData;
+            // console.log(assignmentData);
+            const assignmentData = []
+            console.log(student_id);
+            for(let i = 0 ; i < class_data.class_assignment_id.length ; i++) {
+                const query = await Assignments.findById(class_data.class_assignment_id[i]);
 
+                const assignmentResultData = await AssignmentResults.findOne({ assignment_id : query._id});
+
+                let score = 0
+                for (let j = 0 ; j < assignmentResultData.student_score.length ; j++) {
+                    if (assignmentResultData.student_score[j].student_id === student_id) {
+                        score = assignmentResultData.student_score[j].score
+
+                    } else {
+                        score = 0
+                    }
+                    console.log(score, student_id)
+                }
+                const details = {
+                    id: query._id,
+                    type: 'assignment',
+                    title: query.assignment_name,
+                    score: score,
+                    max_score: query.score,
+                    percentage: score/query.score*100,
+                }
+
+                assignmentData.push(details);
+            }
+            student.assignment = assignmentData;
+            console.log(assignmentData);
             const examData = await transformExam(class_data, class_data.student_id[i]);
             student.exam = examData;
 

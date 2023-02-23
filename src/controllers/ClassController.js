@@ -175,16 +175,16 @@ exports.get = async (req,res) => {
             }
 
             const vote_author = []
-            // const vote_author = {
-            //     username: username,
-            //     vote: -1,
-            // }
 
-            // query.vote_author.map(voteAuthor => {
-            //     if (voteAuthor.user_id == user_id) {
-            //         vote_author.vote = voteAuthor.vote;
-            //     }
-            // })
+            query.vote_author.map(voteAuthor => {
+                if (voteAuthor.user_id == user_id) {
+                    const vote_data = {
+                        username: username,
+                        vote: voteAuthor.vote
+                    }
+                    vote_author.push(vote_data)
+                }
+            })
             
             const details = {
                 id: query._id,

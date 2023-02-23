@@ -19,8 +19,8 @@ const feeds = async (parent, args, req) => {
         if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return [];
 
         const posts = await Posts.find({ class_code: args.class_code });
-        const post_arr = posts.map(post => {
-            return transformPost(username, users, post, class_data);
+        const post_arr = posts.map(async post => {
+            return await transformPost(username, users, post, class_data);
         });
 
         const assignments = []
@@ -30,8 +30,8 @@ const feeds = async (parent, args, req) => {
             assignments.push(assignment);
         }
 
-        const assignment_arr = assignments.map(assignment => {
-            return transformAssignment(assignment);
+        const assignment_arr = assignments.map(async assignment => {
+            return await transformAssignment(assignment);
         })
 
 
@@ -39,18 +39,22 @@ const feeds = async (parent, args, req) => {
         for (let i = 0 ; i < assignment_arr.length ; i++) {
             const feed_details = {
                 type: 'assignment',
-                data: assignment_arr[i]
+                data: await assignment_arr[i]
             }
             feed_data.push(feed_details)
         }
         
         for (let i = 0 ; i < post_arr.length ; i++) {
             const feed_details = {
-                type: post_arr[i].type === "poll" ? "poll" : "post",
-                data: post_arr[i]
+                type: '',
+                data: await post_arr[i]
             }
+            post_arr[i].then(async post => {
+                feed_details.type = await post.type === "poll" ? "poll" : "post"
+            })
             feed_data.push(feed_details)
         }
+        
 
         const sorted_feed_data = feed_data.sort(async (a, b) => {
             const current = await a.data

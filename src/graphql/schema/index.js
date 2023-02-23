@@ -103,7 +103,7 @@ type Query {
     feeds(class_code: String!): [Feed!]!
     singlePost(class_code: String!, post_id: String!): Post!
     singleAssignment(class_code: String!, assignment_id: String!): Assignment!
-    grades(class_code: String!): [GradeStudent]
+    grades(class_code: String!): [GradeStudent!]!
 }
 
 type singlePost {

@@ -57,6 +57,22 @@ exports.get = async (req,res) => {
         })
         const author = await Users.findById(post_data.post_author_id);
 
+        const poll_arr = []
+        let sum = 0
+        for (const poll of post_data.poll) {
+            sum += poll.vote
+        }
+        
+        for (let i = 0 ; i < post_data.poll.length ; i++) {
+            const poll_data = {
+                id: i,
+                choice_name: post_data.poll[i].choice_name,
+                vote: post_data.poll[i].vote,
+                percentage: sum === 0 ? 0 : Math.floor((post_data.poll[i].vote / sum) * 100)
+            }
+            poll_arr.push(poll_data)
+        }
+
         const postSchema = {
             id: post_data._id,
             class_code: post_data.class_code,
@@ -65,7 +81,7 @@ exports.get = async (req,res) => {
             type: post_data.type,
             post_content: post_data.post_content,
             post_optional_file: file_arr,
-            poll: post_data.poll,
+            poll: poll_arr,
             vote_author: vote_author,
             comment: [],
             created: post_data.created
@@ -256,12 +272,12 @@ exports.pollVote = async (req,res) => {
             feeds: feed_data,
           });
 
-          const singlePost_data = await singlePost('', { class_code: classcode, post_id }, { username: username })
-          pubsub.publish('POST_UPDATED', {
-              onPostUpdate: {
-                  singlePost: singlePost_data
-              },
-            });
+        const singlePost_data = await singlePost('', { class_code: classcode, post_id }, { username: username })
+        pubsub.publish('POST_UPDATED', {
+            onPostUpdate: {
+                singlePost: singlePost_data
+            },
+        });
         res.status(200).json({result: 'OK', message: 'success post vote poll'});
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

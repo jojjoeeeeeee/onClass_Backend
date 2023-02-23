@@ -2,8 +2,10 @@ const { buildSchema } = require("graphql");
 
 const typeDefs = `
 type Poll {
+    id: Int
     choice_name: String
     vote: Int
+    percentage: Int
 }
 
 type CommentAuthor {

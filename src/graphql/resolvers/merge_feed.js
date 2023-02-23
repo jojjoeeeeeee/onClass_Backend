@@ -56,9 +56,9 @@ const feeds = async (parent, args, req) => {
         }
         
 
-        const sorted_feed_data = feed_data.sort(async (a, b) => {
-            const current = await a.data
-            const next = await b.data
+        const sorted_feed_data = feed_data.sort((a, b) => {
+            const current = a.data
+            const next = b.data
             return current.moment_sort.valueOf() - next.moment_sort.valueOf();
         })
         return sorted_feed_data.reverse();
@@ -132,6 +132,24 @@ const transformPost = async (username, users, post, class_data) => {
         }
     }
     const post_author_user = await Users.findById(post.post_author_id)
+
+
+    const poll_arr = []
+    let sum = 0
+    for (const poll of post.poll) {
+        sum += poll.vote
+    }
+    
+    for (let i = 0 ; i < post.poll.length ; i++) {
+        const poll_data = {
+            id: i,
+            choice_name: post.poll[i].choice_name,
+            vote: post.poll[i].vote,
+            percentage: sum === 0 ? 0 : Math.floor((post.poll[i].vote / sum) * 100)
+        }
+        poll_arr.push(poll_data)
+    }
+
     const details = {
         id: post._id,
         post_author: null,
@@ -139,7 +157,7 @@ const transformPost = async (username, users, post, class_data) => {
         type: post.type,
         post_content: post.post_content,
         post_optional_file: file_arr,
-        poll: post.poll,
+        poll: poll_arr,
         vote_author: vote_author,
         comment: post.comment.length,
         created: post.created,
@@ -220,6 +238,23 @@ const transformSinglePost = async (post, class_data) => {
     }
     const post_author_user = await Users.findById(post.post_author_id)
 
+    const poll_arr = []
+    let sum = 0
+    for (const poll of post.poll) {
+        sum += poll.vote
+    }
+    
+    for (let i = 0 ; i < post.poll.length ; i++) {
+        const poll_data = {
+            id: i,
+            choice_name: post.poll[i].choice_name,
+            vote: post.poll[i].vote,
+            percentage: sum === 0 ? 0 : Math.floor((post.poll[i].vote / sum) * 100)
+        }
+        poll_arr.push(poll_data)
+    }
+
+
     const details = {
         id: post._id,
         class_code: post.class_code,
@@ -228,7 +263,7 @@ const transformSinglePost = async (post, class_data) => {
         type: post.type,
         post_content: post.post_content,
         post_optional_file: file_arr,
-        poll: post.poll,
+        poll: poll_arr,
         vote_author: vote_author,
         comment: [],
         created: new Date(post.created).toISOString()

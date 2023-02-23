@@ -185,6 +185,24 @@ exports.get = async (req,res) => {
                     vote_author.push(vote_data)
                 }
             })
+
+
+
+            const poll_arr = []
+            let sum = 0
+            for (const poll of query.poll) {
+                sum += poll.vote
+            }
+            
+            for (let i = 0 ; i < query.poll.length ; i++) {
+                const poll_data = {
+                    id: i,
+                    choice_name: query.poll[i].choice_name,
+                    vote: query.poll[i].vote,
+                    percentage: sum === 0 ? 0 : Math.floor((query.poll[i].vote / sum) * 100)
+                }
+                poll_arr.push(poll_data)
+            }
             
             const details = {
                 id: query._id,
@@ -193,7 +211,7 @@ exports.get = async (req,res) => {
                 type: query.type,
                 post_content: query.post_content,
                 post_optional_file: file_arr,
-                poll: query.poll,
+                poll: poll_arr,
                 vote_author: vote_author,
                 comment: query.comment.length,
                 created: query.created,

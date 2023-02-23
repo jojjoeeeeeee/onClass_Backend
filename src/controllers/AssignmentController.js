@@ -27,11 +27,9 @@ exports.get = async (req,res) => {
         const class_data = await Classes.findOne({ class_code: classcode })
         if (!class_data) return res.status(404).json({result: 'Not found', message: '', data: null});
         if (!class_data.teacher_id.includes(user_id) && !class_data.student_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied', data: null});
-        
         if (!class_data.class_assignment_id.includes(assignment_id)) return res.status(404).json({result: 'Not found', message: '', data: null});
         const assignment_data = await Assignments.findById(assignment_id);
         if (!assignment_data) return res.status(404).json({result: 'Not found', message: '', data: null}); 
-
         if(class_data.student_id.includes(user_id)) {
             //Validate time
             const now = moment();
@@ -81,10 +79,12 @@ exports.get = async (req,res) => {
             if (already) {
                 var std_result_index = -1
                 for(let i = 0; i < assignmentResultData.student_result.length; i++){
-                    if (assignmentResultData.student_result[i].student_id === user_id) {
+                    if (assignmentResultData.student_result[i].student_id === user_id.toString()) {
                         std_result_index = i
                     }
                 }
+
+                if (std_result_index === -1) return res.status(404).json({result: 'Not found', message: 'error not found index of user', data: null});
 
                 const std_file_id = assignmentResultData.student_result[std_result_index].file_result;
 
@@ -185,7 +185,6 @@ exports.get = async (req,res) => {
             const file_id = assignment_data.assignment_optional_file.map(key => {
                 return key
             })
-
             const file_arr = []
             for(let i = 0; i < file_id.length; i++){
                 const file_data = await Files.findById(file_id[i]);
@@ -218,10 +217,11 @@ exports.get = async (req,res) => {
 
             const assignmentResultData = await AssignmentResults.findOne({ assignment_id : assignment_id});
 
-            assignmentResultData.student_result.map(async key => {
+            for (let i = 0 ; i < assignmentResultData.student_result.length ; i++) {
                 const result_file_arr = []
-                for (let i = 0 ; i < key.file_result.length ; i++) {
-                    const result_file_data = await Files.findById(key.file_result[i]);
+                for (let j = 0 ; j < assignmentResultData.student_result[i].file_result.length ; j++) {
+                    console.log(assignmentResultData.student_result[i].file_result[j])
+                    const result_file_data = await Files.findById(assignmentResultData.student_result[i].file_result[j]);
                     if(!result_file_data) return res.status(404).json({result: 'Not found', message: '', data: null});
                     const result_file_obj = {
                         file_name: result_file_data.file_name,
@@ -232,16 +232,15 @@ exports.get = async (req,res) => {
                 }
 
                 const std_submitResult = {
-                    student_id: key.student_id,
+                    student_id: assignmentResultData.student_result[i].student_id,
                     file_result: result_file_arr,
-                    answer_result: key.answer_result,
-                    url_result: key.url_result,
-                    isLate: key.isLate
+                    answer_result: assignmentResultData.student_result[i].answer_result,
+                    url_result: assignmentResultData.student_result[i].url_result,
+                    isLate: assignmentResultData.student_result[i].isLate
                 }
 
                 student_result.push(std_submitResult)
-            });
-
+            }
             assignmentResultData.student_score.map(key => {
                 student_score.push(key);
             })
@@ -262,10 +261,11 @@ exports.get = async (req,res) => {
                 })
 
                 const query = await Users.findById(assignment_data.comment[i].comment_author_id);
-                const comment_profile_pic = await Files.findById(query.profile_pic);
-                if (comment_profile_pic !== null && comment_profile_pic !== '') {
-                    commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
-                }
+                // const comment_profile_pic = await Files.findById(query.profile_pic);
+                // if (comment_profile_pic !== null && comment_profile_pic !== '') {
+                //     commentSchema.profile_pic = `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/${comment_profile_pic.file_path}`
+                // }
+                commentSchema.profile_pic = query.profile_pic;
                 assignmentComment.push(commentSchema);
             }
 

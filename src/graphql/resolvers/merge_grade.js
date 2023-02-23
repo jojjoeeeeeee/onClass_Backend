@@ -72,18 +72,22 @@ const transformAssignment = async (class_data, student_id) => {
 
     try {
         const assignmentData = []
+        console.log(student_id);
         for(let i = 0 ; i < class_data.class_assignment_id.length ; i++) {
             const query = await Assignments.findById(class_data.class_assignment_id[i]);
 
             const assignmentResultData = await AssignmentResults.findOne({ assignment_id : query._id});
 
-            const score = 0
+            let score = 0
             for (let j = 0 ; j < assignmentResultData.student_score.length ; j++) {
-                if (assignmentResultData.student_score[i].student_id === student_id) {
-                    score = assignmentResultData.student_score[i].score
-                }
-            }
+                if (assignmentResultData.student_score[j].student_id === student_id) {
+                    score = assignmentResultData.student_score[j].score
 
+                } else {
+                    score = 0
+                }
+                console.log(score, student_id)
+            }
             const details = {
                 id: query._id,
                 type: 'assignment',

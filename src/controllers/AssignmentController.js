@@ -101,7 +101,6 @@ exports.get = async (req,res) => {
                     std_file_arr.push(std_file_obj)
                 }
 
-
                 std_submitResult.file_result = std_file_arr;
                 std_submitResult.answer_result = assignmentResultData.student_result[std_result_index].answer_result;
                 std_submitResult.isLate = assignmentResultData.student_result[std_result_index].isLate;

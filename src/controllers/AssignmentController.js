@@ -67,7 +67,7 @@ exports.get = async (req,res) => {
                 if (assignmentKey.student_id == user_id) return already = true
             });
             //if already submit cant re submit
-            can_submit = !already
+            can_submit = can_submit && !already
 
             const std_submitResult = {
                 file_result: [],

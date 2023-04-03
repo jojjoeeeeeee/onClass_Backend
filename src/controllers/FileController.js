@@ -1,20 +1,21 @@
 const multer = require('multer');
 const Files = require('../models/file_schema');
+const path = require('path');
 
 const currentTime = Date.now();
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'public')
+        cb(null, path.join(__dirname, '../../public/'));
     },
     filename: (req, file, cb) => {
-        cb(null, currentTime + '-' + file.originalname)
+        cb(null, currentTime + '-' + file.originalname);
     }
 });
 
 const storageImg = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'public/img/')
+        cb(null, path.join(__dirname, '../../public/img/'));
     },
     filename: (req, file, cb) => {
         cb(null, currentTime + '-' + file.originalname)

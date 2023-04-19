@@ -67,7 +67,7 @@ exports.get = async (req,res) => {
                 if (assignmentKey.student_id == user_id) return already = true
             });
             //if already submit cant re submit
-            can_submit = can_submit ? !already : can_submit
+            // can_submit = can_submit ? !already : can_submit
 
             const std_submitResult = {
                 file_result: [],
@@ -142,6 +142,7 @@ exports.get = async (req,res) => {
                 assignment_start_date: assignment_data.assignment_start_date,
                 assignment_end_date: assignment_data.assignment_end_date,
                 can_submit: can_submit,
+                already: already,
                 submit_result: std_submitResult,
                 score_result: std_score,
                 status: status,
@@ -572,9 +573,14 @@ exports.stdSubmit = async (req,res) => {
 
         const assignmentResultData = await AssignmentResults.findOne({ assignment_id: assignment_id });
 
-        //Cannot submit twice
+        
         for(let i = 0; i < assignmentResultData.student_result.length; i++){
-            if(assignmentResultData.student_result[i].student_id === user_id) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
+            //Cannot submit twice
+            // if(assignmentResultData.student_result[i].student_id === user_id) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
+            //Resubmit
+            if(assignmentResultData.student_result[i].student_id === user_id) {
+                assignmentResultData.student_result.splice(i,1);
+            }
         }
 
         const resultSchema = {

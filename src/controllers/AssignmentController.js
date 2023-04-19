@@ -142,7 +142,7 @@ exports.get = async (req,res) => {
                 assignment_start_date: assignment_data.assignment_start_date,
                 assignment_end_date: assignment_data.assignment_end_date,
                 can_submit: can_submit,
-                already: already,
+                already_submit: already,
                 submit_result: std_submitResult,
                 score_result: std_score,
                 status: status,

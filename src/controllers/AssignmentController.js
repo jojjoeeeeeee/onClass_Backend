@@ -575,19 +575,15 @@ exports.stdSubmit = async (req,res) => {
 
         const assignmentResultData = await AssignmentResults.findOne({ assignment_id: assignment_id });
 
-        var user_result_index = -1
         for(let i = 0; i < assignmentResultData.student_result.length; i++){
             //Cannot submit twice
             // if(assignmentResultData.student_result[i].student_id === user_id) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
             //Resubmit
-            if(assignmentResultData.student_result[i].student_id === user_id) {
-                user_result_index = i
+            if(assignmentResultData.student_result[i].student_id === user_id.toString()) {
+                assignmentResultData.student_result.splice(i,1)
             }
         }
 
-        if(user_result_index !== -1) {
-            assignmentResultData.student_result.splice(user_result_index,1)
-        }
         const resultSchema = {
             student_id: user_id,
             file_result: submitResult.file_result,

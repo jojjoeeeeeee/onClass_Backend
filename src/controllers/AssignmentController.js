@@ -532,7 +532,9 @@ exports.delete = async (req,res) => {
                 }
             }
 
-            user.notification.splice(user_assignment_index,1);
+            if(user_assignment_index !== -1) {
+                user.notification.splice(user_assignment_index,1);
+            }
             await Users.findByIdAndUpdate(class_data.student_id[i], user);
         }
 
@@ -573,16 +575,19 @@ exports.stdSubmit = async (req,res) => {
 
         const assignmentResultData = await AssignmentResults.findOne({ assignment_id: assignment_id });
 
-        
+        var user_result_index = -1
         for(let i = 0; i < assignmentResultData.student_result.length; i++){
             //Cannot submit twice
             // if(assignmentResultData.student_result[i].student_id === user_id) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
             //Resubmit
             if(assignmentResultData.student_result[i].student_id === user_id) {
-                assignmentResultData.student_result.splice(i,1);
+                user_result_index = i
             }
         }
 
+        if(user_result_index !== -1) {
+            assignmentResultData.student_result.splice(user_result_index,1)
+        }
         const resultSchema = {
             student_id: user_id,
             file_result: submitResult.file_result,

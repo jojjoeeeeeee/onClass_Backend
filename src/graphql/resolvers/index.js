@@ -27,6 +27,16 @@ const resolvers = {
                 );
             }
           )
+        },
+        onExaminationTimeout: {
+          subscribe: withFilter(
+            () => pubsub.asyncIterator(['EXAMINATION_TIMEOUT']),
+            (payload, variables) => {
+              return (
+                payload.onExaminationTimeout.exam_id.toString() === variables.exam_id
+              );
+            }
+          )
         }
       },
     Query: {

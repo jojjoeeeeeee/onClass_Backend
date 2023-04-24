@@ -1,4 +1,4 @@
-const Joi = require("@hapi/joi")
+const Joi = require("@hapi/joi");
 
 const registerValidation = (data) => {
   const schema = Joi.object({
@@ -10,6 +10,17 @@ const registerValidation = (data) => {
       lastname: Joi.string().max(128).required(),
     }).required(),
     profile_pic: Joi.string().allow("").required(),
+  });
+  return schema.validate(data);
+};
+
+const classDetailValidation = (data) => {
+  const schema = Joi.object({
+    class_name: Joi.string().min(6).max(512).required(),
+    class_description: Joi.string().max(1024).allow("").required(),
+    class_section: Joi.string().max(512).allow("").required(),
+    class_room: Joi.string().max(512).allow("").required(),
+    class_subject: Joi.string().max(512).allow("").required(),
   });
   return schema.validate(data);
 };
@@ -55,7 +66,7 @@ const assignmentValidation = (data) => {
     symbol_score: Joi.array().items(Joi.string()).required(),
     score: Joi.number().required(),
     assignment_optional_file: Joi.array().items(Joi.string()).required(),
-    assignment_end_date: Joi.date().iso().required()
+    assignment_end_date: Joi.date().iso().required(),
   });
   return schema.validate(data);
 };
@@ -81,11 +92,11 @@ const classPostCommentValidation = (data) => {
     class_code: Joi.string().required(),
     id: Joi.string().required(),
     data: Joi.object({
-        content: Joi.string().required()
-    }).required()
+      content: Joi.string().required(),
+    }).required(),
   });
   return schema.validate(data);
-}
+};
 
 const classPostPollVoteValidation = (data) => {
   const schema = Joi.object({
@@ -98,6 +109,7 @@ const classPostPollVoteValidation = (data) => {
 
 module.exports.registerValidation = registerValidation;
 module.exports.classValidation = classValidation;
+module.exports.classDetailValidation = classDetailValidation;
 module.exports.classClassCodeValidation = classClassCodeValidation;
 module.exports.classNicknameValidation = classNicknameValidation;
 module.exports.assignmentValidation = assignmentValidation;

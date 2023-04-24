@@ -9,7 +9,7 @@ const Assignments = require('../models/assignment/assignment_schema');
 const Files = require('../models/file_schema');
 
 const { generateClasscode } = require('../services/function');
-const { classValidation, classNicknameValidation } = require('../services/validation');
+const { classValidation, classDetailValidation, classNicknameValidation } = require('../services/validation');
 
 const moment = require('moment');
 
@@ -374,7 +374,7 @@ exports.editDetails = async (req,res) => {
     const classcode = req.body.class_code;
     if (!classcode) return res.status(400).json({result: 'Bad request', message: ''});
 
-    const { error } = classValidation(req.body.data);
+    const { error } = classDetailValidation(req.body.data);
     if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
 
     const data = req.body.data;

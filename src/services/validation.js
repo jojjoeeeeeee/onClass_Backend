@@ -57,6 +57,17 @@ const classNicknameValidation = (data) => {
   return schema.validate(data);
 };
 
+const classEditRoleValidation = (data) => {
+  const schema = Joi.object({
+    class_code: Joi.string().required(),
+    data: Joi.object({
+      user_id: Joi.string().required(),
+      role: Joi.string().max(7).required()
+    })
+  })
+  return schema.validate(data);
+}
+
 const assignmentValidation = (data) => {
   const schema = Joi.object({
     assignment_name: Joi.string().min(6).max(512).required(),
@@ -112,6 +123,7 @@ module.exports.classValidation = classValidation;
 module.exports.classDetailValidation = classDetailValidation;
 module.exports.classClassCodeValidation = classClassCodeValidation;
 module.exports.classNicknameValidation = classNicknameValidation;
+module.exports.classEditRoleValidation = classEditRoleValidation;
 module.exports.assignmentValidation = assignmentValidation;
 module.exports.classAssignmentValidation = classAssignmentValidation;
 module.exports.classPostValidation = classPostValidation;

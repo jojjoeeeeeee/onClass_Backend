@@ -9,7 +9,7 @@ const Assignments = require('../models/assignment/assignment_schema');
 const Files = require('../models/file_schema');
 
 const { generateClasscode } = require('../services/function');
-const { classValidation, classDetailValidation, classNicknameValidation } = require('../services/validation');
+const { classValidation, classDetailValidation, classNicknameValidation, classEditRoleValidation } = require('../services/validation');
 
 const moment = require('moment');
 
@@ -403,11 +403,14 @@ exports.editDetails = async (req,res) => {
 
 exports.editRoles = async (req,res) => {
     const username = req.username;
-    const classcode = req.body.class_code;
-    const data = req.body.data;
 
-    if (!classcode||!data) return res.status(400).json({result: 'Bad request', message: ''});
-    if (!data.teacher_id||!data.student_id) return res.status(400).json({result: 'Bad request', message: ''});
+    const { error } = classEditRoleValidation(req.body);
+    if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
+
+    const classcode = req.body.class_code;
+    const userRole = req.body.data;
+
+    if(userRole.role !== 'teacher' && userRole.role !== 'student') return res.status(400).json({result: 'Bad request', message: ''});
 
     try {
         const users = await Users.findOne({ username: username })
@@ -417,38 +420,35 @@ exports.editRoles = async (req,res) => {
         if (!query) return res.status(404).json({result: 'Not found', message: ''});
         if (!query.teacher_id.includes(user_id)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
-        const user_idArr = []
-        for(let i = 0 ; i < data.student_id.length ; i++) {
-            user_idArr.push(data.student_id[i]);
-        }
+        if (!query.teacher_id.includes(userRole.user_id) && !query.student_id.includes(userRole.user_id)) return res.status(404).json({result: 'Not found', message: ''});
 
-        for(let i = 0 ; i < data.teacher_id.length ; i++) {
-            user_idArr.push(data.teacher_id[i]);
-        }
+        if (query.teacher_id.length >= 1) {
+            if (query.teacher_id.includes(userRole.user_id) && query.teacher_id.length === 1) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
 
-        user_idArr.map(usrid => {
-            if(!query.teacher_id.includes(usrid) && !query.student_id.includes(usrid)) return res.status(403).json({result: 'Forbidden', message: 'access is denied'});
-        });
-
-        if (data.teacher_id.length >= 1 ) {
-            for(let i = 0 ; i < data.teacher_id.length ; i++){
-                const usr = await Users.findById(data.teacher_id[i]);
-                for(let j = 0 ; j < usr.class.length ; j++) {
-                    usr.class[j].role = 'teacher'
-                    await Users.findByIdAndUpdate(data.teacher_id[i], usr);
+            const usr = await Users.findById(userRole.user_id);
+            for(let i = 0 ; i < usr.class.length ; i++) {
+                usr.class[i].role = userRole.role
+                await Users.findByIdAndUpdate(userRole.user_id, usr);
+            }
+            
+            if (userRole.role === 'teacher') {
+                for (let i = 0 ; i < query.student_id.length ; i++) {
+                    if(query.student_id[i] === userRole.user_id) {
+                        query.student_id.splice(i,1);
+                        query.teacher_id.push(userRole.user_id)
+                        break;
+                    }
+                }
+            } else if (userRole.role === 'student')  {
+                for (let i = 0 ; i < query.teacher_id.length ; i++) {
+                    if(query.teacher_id[i] === userRole.user_id) {
+                        query.teacher_id.splice(i,1);
+                        query.student_id.push(userRole.user_id)
+                        break;
+                    }
                 }
             }
-
-            for(let i = 0 ; i < data.student_id.length ; i++){
-                const usr = await Users.findById(data.student_id[i]);
-                for(let j = 0 ; j < usr.class.length ; j++) {
-                    usr.class[j].role = 'student'
-                    await Users.findByIdAndUpdate(data.student_id[i], usr);
-                }
-            }
-
-            query.teacher_id = data.teacher_id;
-            query.student_id = data.student_id;
+   
             const updated_class_data = await Classes.findOneAndUpdate({ class_code : classcode }, query);
         }
         else {

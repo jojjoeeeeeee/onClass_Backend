@@ -220,7 +220,6 @@ exports.get = async (req,res) => {
             for (let i = 0 ; i < assignmentResultData.student_result.length ; i++) {
                 const result_file_arr = []
                 for (let j = 0 ; j < assignmentResultData.student_result[i].file_result.length ; j++) {
-                    console.log(assignmentResultData.student_result[i].file_result[j])
                     const result_file_data = await Files.findById(assignmentResultData.student_result[i].file_result[j]);
                     if(!result_file_data) return res.status(404).json({result: 'Not found', message: '', data: null});
                     const result_file_obj = {

@@ -104,6 +104,7 @@ type Query {
     singlePost(class_code: String!, post_id: String!): Post!
     singleAssignment(class_code: String!, assignment_id: String!): Assignment!
     grades(class_code: String!): [GradeStudent!]!
+    getPrivateMessages(teacher_id: String!, student_id: String!, class_code: String!): [Message!]
 }
 
 type singlePost {
@@ -119,11 +120,31 @@ type examinationTimeout {
     status: String!
 }
 
+type Message {
+    id: ID!
+    content: String!
+    conversation_id: ID!
+    sender_id: ID!
+    sender_name: String!
+    created: String!
+}
+
+type subMessage {
+    message: Message!
+    class_code: String!
+    participants: [ID!]
+}
+
 type Subscription {
     feeds(class_code: String!): [Feed!]!
     onPostUpdate(class_code: String!, post_id: String!): singlePost!
     onAssignmentUpdate(class_code: String!, assignment_id: String!): singleAssignment!
     onExaminationTimeout(class_code: String!, exam_id: String!): examinationTimeout!
+    onNewMessage(class_code: String!, student_id: String!, teacher_id: String!): subMessage!
+}
+
+type Mutation {
+    sendPrivateMessage(receiver_id: String!, sender_id: String!, teacher_id: String!, content: String!, class_code: String!): String!
 }
 `
 

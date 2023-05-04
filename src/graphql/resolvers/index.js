@@ -1,5 +1,6 @@
 const feedsResolver = require('./feeds');
 const gradesResolver = require('./grades');
+const chatResolver = require('./chats');
 const pubsub = require('../pubsub');
 const withFilter = require('graphql-subscriptions').withFilter;
 
@@ -37,6 +38,16 @@ const resolvers = {
               );
             }
           )
+        },
+        onNewMessage: {
+          subscribe: withFilter(
+            () => pubsub.asyncIterator(['NEW_MESSAGE']),
+            (payload, variables) => {
+              return (
+                payload.onNewMessage.participants.includes(variables.student_id.toString()) && payload.onNewMessage.participants.includes(variables.teacher_id.toString()) && payload.onNewMessage.class_code.toString() === variables.class_code.toString()
+              )
+            }
+          )
         }
       },
     Query: {
@@ -44,6 +55,10 @@ const resolvers = {
         singlePost: async (parent, args, req) => feedsResolver.singlePost(parent, args, req),
         singleAssignment: async (parent, args, req) => feedsResolver.singleAssignment(parent, args, req),
         grades: async (parent, args, req) => await gradesResolver.grades(parent, args, req),
+        getPrivateMessages: async (parent, args, req) => await chatResolver.getPrivateMessages(parent, args, req)
+    },
+    Mutation: {
+      sendPrivateMessage: async (parent, args, req) =>  chatResolver.sendPrivateMessage(parent, args, req),
     }
 };
 

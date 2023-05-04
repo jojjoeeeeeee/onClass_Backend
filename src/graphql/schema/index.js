@@ -140,7 +140,7 @@ type Subscription {
     onPostUpdate(class_code: String!, post_id: String!): singlePost!
     onAssignmentUpdate(class_code: String!, assignment_id: String!): singleAssignment!
     onExaminationTimeout(class_code: String!, exam_id: String!): examinationTimeout!
-    onNewMessage(class_code: String!, student_id: String!, teacher_id: String!): subMessage!
+    onNewMessage(class_code: String!, user_id: String!): subMessage!
 }
 
 type Mutation {

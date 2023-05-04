@@ -44,7 +44,7 @@ const resolvers = {
             () => pubsub.asyncIterator(['NEW_MESSAGE']),
             (payload, variables) => {
               return (
-                payload.onNewMessage.participants.includes(variables.student_id.toString()) && payload.onNewMessage.participants.includes(variables.teacher_id.toString()) && payload.onNewMessage.class_code.toString() === variables.class_code.toString()
+                payload.onNewMessage.participants.includes(variables.user_id.toString()) && payload.onNewMessage.class_code.toString() === variables.class_code.toString()
               )
             }
           )

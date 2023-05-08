@@ -269,7 +269,7 @@ exports.get = async (req,res) => {
             const end = moment(assignment_data.assignment_end_date);
 
             class_data.nickname.map(nickKey => {
-                if (!alreadySubmitStudentId.includes(nickKey.user_id)) {
+                if (!alreadySubmitStudentId.includes(nickKey.user_id) && class_data.student_id.includes(nickKey.user_id)) {
                     const std_NonSubmitResult = {
                         firstname: nickKey.firstname,
                         lastname: nickKey.lastname,

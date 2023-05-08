@@ -217,6 +217,8 @@ exports.get = async (req,res) => {
 
             const assignmentResultData = await AssignmentResults.findOne({ assignment_id : assignment_id});
 
+            const alreadySubmitStudentId = []
+
             for (let i = 0 ; i < assignmentResultData.student_result.length ; i++) {
                 const result_file_arr = []
                 for (let j = 0 ; j < assignmentResultData.student_result[i].file_result.length ; j++) {
@@ -230,7 +232,20 @@ exports.get = async (req,res) => {
                     result_file_arr.push(result_file_obj)
                 }
 
+                var status = ''
+
+                if(!assignmentResultData.student_result[i].isLate) {
+                    status = turnIn_status[0] //ส่งแล้ว
+                }
+                else if(assignmentResultData.student_result[i].isLate) {
+                    status = turnIn_status[1] //ส่งช้า
+                }
+
                 const std_submitResult = {
+                    firstname: "",
+                    lastname: "",
+                    optional_name: "",
+                    status: status,
                     student_id: assignmentResultData.student_result[i].student_id,
                     file_result: result_file_arr,
                     answer_result: assignmentResultData.student_result[i].answer_result,
@@ -238,8 +253,38 @@ exports.get = async (req,res) => {
                     isLate: assignmentResultData.student_result[i].isLate
                 }
 
+                class_data.nickname.map(nickKey => {
+                    if (nickKey.user_id == assignmentResultData.student_result[i].student_id) {
+                        std_submitResult.firstname = nickKey.firstname
+                        std_submitResult.lastname = nickKey.lastname
+                        std_submitResult.optional_name = nickKey.optional_name
+                    }
+                })
+
+                alreadySubmitStudentId.push(assignmentResultData.student_result[i].student_id)
                 student_result.push(std_submitResult)
             }
+
+            const now = moment();
+            const end = moment(assignment_data.assignment_end_date);
+
+            class_data.nickname.map(nickKey => {
+                if (!alreadySubmitStudentId.includes(nickKey.user_id)) {
+                    const std_NonSubmitResult = {
+                        firstname: nickKey.firstname,
+                        lastname: nickKey.lastname,
+                        optional_name: nickKey.optional_name,
+                        status: "ยังไม่ส่ง",
+                        student_id: "",
+                        file_result: [],
+                        answer_result: "",
+                        url_result: "",
+                        isLate: now.isAfter(end) && !assignment_data.turnin_late
+                    }
+                    student_result.push(std_NonSubmitResult);
+                }
+            })
+
             assignmentResultData.student_score.map(key => {
                 student_score.push(key);
             })

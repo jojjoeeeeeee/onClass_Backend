@@ -275,7 +275,7 @@ exports.get = async (req,res) => {
                         lastname: nickKey.lastname,
                         optional_name: nickKey.optional_name,
                         status: "ยังไม่ส่ง",
-                        student_id: "",
+                        student_id: nickKey.user_id,
                         file_result: [],
                         answer_result: "",
                         url_result: "",

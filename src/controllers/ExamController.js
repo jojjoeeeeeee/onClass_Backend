@@ -192,7 +192,7 @@ exports.get = async (req,res) => {
                 exam_start_date: exam_data.exam_start_date,
                 exam_end_date: exam_data.exam_end_date
             }
-            res.status(200).json({result: 'OK', message: '', data: [res_exam_data]});
+            res.status(200).json({result: 'OK', message: '', data: res_exam_data});
         }
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

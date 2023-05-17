@@ -10,6 +10,10 @@ const moment = require('moment');
 
 const exam_status = ['ยังไม่ถึงช่วงสอบ','อยู่ในช่วงสอบ','ผ่านช่วงสอบไปแล้ว']
 
+const temp_schedule_exam_id = [];
+const schedule = require('node-schedule');
+const pubsub = require('../graphql/pubsub');
+
 exports.get = async (req,res) => {
 
     const username = req.username;
@@ -38,6 +42,19 @@ exports.get = async (req,res) => {
             const end = moment(exam_data.exam_end_date);
             if (now.isBefore(start) || now.isAfter(end)) return res.status(200).json({result: 'nOK', message: 'Its not the time when you can take the exam'});
 
+            const date = new Date(exam_data.exam_end_date); // get date from end of examination
+            if (!temp_schedule_exam_id.includes(exam_id)) {
+                const job = schedule.scheduleJob(date, (y) => {
+                    temp_schedule_exam_id.splice(temp_schedule_exam_id.indexOf(exam_id), 1)
+                    pubsub.publish('EXAMINATION_TIMEOUT', {
+                        onExaminationTimeout: {
+                            exam_id: `${exam_id}`,
+                            status: 'TIMEOUT'
+                        },
+                    });
+                })
+                temp_schedule_exam_id.push(exam_id)
+            }
             //Already submit validate
             const examResultData = await ExamResults.findOne({ exam_id : exam_id});
             var already = false
@@ -325,7 +342,7 @@ exports.stdSubmit = async (req,res) => {
         //Validate time
         const now = moment()
         const start = moment(exam_data.exam_start_date);
-        const end = moment(exam_data.exam_end_date);
+        const end = moment(exam_data.exam_end_date).add(5, 'minutes'); //add 5 minutes for submit time delay
         if (now.isBefore(start) || now.isAfter(end)) return res.status(200).json({result: 'nOK', message: 'Its not the time when you can take the exam'});
         
         //Already submit validate

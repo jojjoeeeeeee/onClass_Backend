@@ -45,7 +45,6 @@ exports.get = async (req,res) => {
             const date = new Date(exam_data.exam_end_date); // get date from end of examination
             if (!temp_schedule_exam_id.includes(exam_id)) {
                 const job = schedule.scheduleJob(date, (y) => {
-                    console.log('SCHEDULEEE', exam_id)
                     temp_schedule_exam_id.splice(temp_schedule_exam_id.indexOf(exam_id), 1)
                     pubsub.publish('EXAMINATION_TIMEOUT', {
                         onExaminationTimeout: {
@@ -179,7 +178,7 @@ exports.get = async (req,res) => {
                 exam_end_date: exam_data.exam_end_date
             }
 
-            res.status(200).json({result: 'OK', message: '', data: [res_exam_data]});
+            res.status(200).json({result: 'OK', message: '', data: res_exam_data});
         }
         else {
 
@@ -504,26 +503,24 @@ exports.getResultForTeacher = async (req,res) => {
                     stdScoreData.student_score.push(scoreSchema);    
                 }
             });
-
             return await Promise.all(promises)
         })
-
         Promise.all(mapPromises).then( async () => {
             await ExamResults.findOneAndUpdate({ exam_id: exam_id}, stdScoreData); 
+            
             const new_exam_result_data = await ExamResults.findOne({ exam_id : exam_id });
-
             
             const std_result_res_arr = []
             new_exam_result_data.student_result.map(key => {
                 const std_result = {
-                    name: [{}],
+                    name: {},
                     part_id: "",
                     part_type: "",
                     answer: []
                 }
                 class_data.nickname.map(nickKey => {
                     if (nickKey.user_id == key.student_id) {
-                        std_result.name = [nickKey];
+                        std_result.name = nickKey;
                     }
                 })
                 std_result.part_id = key.part_id;
@@ -536,7 +533,7 @@ exports.getResultForTeacher = async (req,res) => {
             const std_score_res_arr = []
             new_exam_result_data.student_score.map(key => {
                 const std_score = {
-                    name: [{}],
+                    name: {},
                     part_id: "",
                     part_type: "",
                     part_score: [],
@@ -544,7 +541,7 @@ exports.getResultForTeacher = async (req,res) => {
                 }
                 class_data.nickname.map(nickKey => {
                     if (nickKey.user_id == key.student_id) {
-                        std_score.name = [nickKey];
+                        std_score.name = nickKey;
                     }
                 });
                 std_score.part_id = key.part_id;
@@ -561,7 +558,7 @@ exports.getResultForTeacher = async (req,res) => {
                 student_result: std_result_res_arr,
                 student_score: std_score_res_arr
             }
-            res.status(200).json({result: 'OK', message: '', data: [resObj]});
+            res.status(200).json({result: 'OK', message: '', data: resObj});
         }) 
     } catch (e) {
         res.status(500).json({result: 'Internal Server Error', message: ''});

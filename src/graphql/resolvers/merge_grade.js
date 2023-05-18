@@ -5,7 +5,6 @@ const Assignments = require('../../models/assignment/assignment_schema');
 const AssignmentResults = require('../../models/assignment/assignment_result_schema');
 const Exams = require('../../models/exam/examination_schema');
 const ExamResults = require('../../models/exam/exam_result_schema');
-const Files = require('../../models/file_schema');
 
 const grades = async (parent, args, req) => {
     const username = req.username;
@@ -78,13 +77,11 @@ const transformAssignment = async (class_data, student_id) => {
 
             const assignmentResultData = await AssignmentResults.findOne({ assignment_id : query._id});
 
-            let score = 0
+            var score = null
             for (let j = 0 ; j < assignmentResultData.student_score.length ; j++) {
                 if (assignmentResultData.student_score[j].student_id === student_id) {
                     score = assignmentResultData.student_score[j].score
                     break;
-                } else {
-                    score = 0
                 }
             }
             const details = {
@@ -93,9 +90,8 @@ const transformAssignment = async (class_data, student_id) => {
                 title: query.assignment_name,
                 score: score,
                 max_score: query.score,
-                percentage: score/query.score*100,
+                percentage: (score ?? 0)/query.score*100,
             }
-
             assignmentData.push(details);
         }
         return assignmentData;
@@ -114,14 +110,18 @@ const transformExam = async (class_data, student_id) => {
 
             const examResultData = await ExamResults.findOne({ exam_id : query._id});
 
-            const score = 0
+            var score = 0
             for (let j = 0 ; j < examResultData.student_score.length ; j++) {
                 if (examResultData.student_score[j].student_id === student_id) {
                     score = examResultData.student_score[j].sum_score
                     break;
-                } else {
-                    score = 0
                 }
+            }
+
+            var max_score = 0
+
+            for (let i = 0 ; i < query.part_list.length ; i++) {
+                max_score += query.part_list[i].score
             }
 
             const details = {
@@ -129,8 +129,8 @@ const transformExam = async (class_data, student_id) => {
                 type: 'exam',
                 title: query.exam_name,
                 score: score,
-                max_score: query.score,
-                percentage: score/query.score*100,
+                max_score: max_score,
+                percentage: score/max_score*100,
             }
 
             examData.push(details);

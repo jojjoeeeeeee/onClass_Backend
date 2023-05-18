@@ -85,7 +85,7 @@ type GradeScore {
     grade_id: String!
     type: String!
     title: String!
-    score: Float!
+    score: Float
     max_score: Float!
     percentage: Float!
 }

@@ -126,10 +126,10 @@ exports.get = async (req,res) => {
 
             var std_score = 0
             assignmentResultData.student_score.map((assignmentKey) => {
-                if (assignmentKey.student_id == user_id) return std_score = assignmentKey.score
+                if (assignmentKey.student_id == user_id) {
+                    return std_score = assignmentKey.score
+                }
             });
-
-
 
             const res_assignment_data = {
                 id:assignment_data._id,
@@ -145,6 +145,7 @@ exports.get = async (req,res) => {
                 already_submit: already,
                 submit_result: std_submitResult,
                 score_result: std_score,
+                has_score: std_score !== null,
                 status: status,
                 comment: [],
                 role: 'student'

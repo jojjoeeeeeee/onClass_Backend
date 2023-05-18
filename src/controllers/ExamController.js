@@ -45,6 +45,7 @@ exports.get = async (req,res) => {
             const date = new Date(exam_data.exam_end_date); // get date from end of examination
             if (!temp_schedule_exam_id.includes(exam_id)) {
                 const job = schedule.scheduleJob(date, (y) => {
+                    console.log('SCHEDULEEE', exam_id)
                     temp_schedule_exam_id.splice(temp_schedule_exam_id.indexOf(exam_id), 1)
                     pubsub.publish('EXAMINATION_TIMEOUT', {
                         onExaminationTimeout: {

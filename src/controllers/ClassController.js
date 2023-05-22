@@ -297,7 +297,7 @@ exports.create = async (req,res) => {
     const username = req.username;
 
     const { error } = classValidation(req.body);
-    if (error) return res.status(200).json({result: 'nOK', message: error.details[0].message});
+    if (error) return res.status(500).json({result: 'nOK', message: error.details[0].message});
 
     var classcode = generateClasscode();
     var classcodeExist = await Classes.findOne({ class_code : classcode });
